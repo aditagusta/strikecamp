@@ -148,4 +148,11 @@ class CabangController extends Controller
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
         }
     }
+
+    // Api Android
+    public function getInfo()
+    {
+        $data = Cabang::all();
+        return response()->json(['status' => 200,'message' => 'Data Ditemukan','data' => $data]);
+    }
 }

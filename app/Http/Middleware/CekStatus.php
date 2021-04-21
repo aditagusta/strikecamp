@@ -14,7 +14,7 @@ class CekStatus
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next, ...$leves)
+    public function handle($request, Closure $next, ...$levels)
     {
         if(in_array(Auth::guard('pusat')->user()->level,$levels));
         {

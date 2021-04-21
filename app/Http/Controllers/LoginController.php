@@ -15,39 +15,6 @@ class LoginController extends Controller
         return view('pages.login');
     }
 
-    // public function login(Request $request)
-    // {
-    //     $this->validate($request, [
-    //         'username' => 'required|regex:/(^[A-Za-z0-9 ]+$)+/',
-    //         'password' => 'required|regex:/(^[A-Za-z0-9 ]+$)+/',
-    //     ]);
-    //     $username = $request->username;
-    //     $password = $request->password;
-    //     $data = DB::table('tbl_user')->where('username', $username)->first();
-    //     // dd($data);
-    //     if ($data == null) {
-    //         return back()->with('pesan', 'Username Atau Password Salah!');
-    //     } else {
-    //         $cek = Hash::check($password, $data->password);
-    //         // dd($cek);
-    //         if ($cek == true) {
-    //             $request->session()->put("id", $data->id_user);
-    //             $request->session()->put("nama", $data->nama_user);
-    //             $request->session()->put("level", $data->level);
-    //             $request->session()->put("cabang", $data->id_cabang);
-    //             if ($data->level == "1") {
-    //                 return redirect('/homepusat');
-    //             }
-    //             elseif ($data->level == "2") {
-    //                 return redirect('/home');
-    //             }
-    //         } else {
-    //             return back()->with('pesan', 'Username Atau Password Salah!');
-    //         }
-    //     }
-    // }
-
-
     function login2(Request $request){
         $this->validate($request, [
             'username' => 'required|regex:/(^[A-Za-z0-9 ]+$)+/',
@@ -71,39 +38,22 @@ class LoginController extends Controller
         return redirect('/login');
     }
 
-    // public function logout(Request $req)
-    // {
-    //     $req->session()->forget('id');
-    //     $req->session()->forget('nama');
-    //     $req->session()->forget('level');
-    //     $req->session()->forget('cabang');
-    //     return redirect("/login");
-    // }
+    // Api Android
+    public function loginMember(Request $request) {
 
-    // Login Member /  Konsumen
-    public function loginMember(Request $request)
-    {
-        $this->validate($request, [
-            'username' => 'required|regex:/(^[A-Za-z0-9 ]+$)+/',
-            'password' => 'required|regex:/(^[A-Za-z0-9 ]+$)+/',
-        ]);
-        $username = $request->username;
-        $password = $request->password;
-        $data = DB::table('tbl_member')->where('username', $username)->first();
-        // dd($data);
-        if ($data == null) {
-            return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
+        if ($token = Auth::guard('member')->attempt(["username" => $request->username, "password" => $request->password])) {
+            return $this->respondWithToken($token);
         } else {
-            $cek = Hash::check($password, $data->password);
-            // dd($cek);
-            if ($cek == true) {
-                $request->session()->put("id", $data->id_member);
-                $request->session()->put("nama", $data->nama_member);
-                $request->session()->put("cabang", $data->id_cabang);
-                return response()->json(['status' => 200, 'message' => 'Berhasil Melakukan Login']);
-            } else {
-                return response()->json(['message' => 'Password Salah', 'status' => 404]);
-            }
+            return response()->json("Error");
         }
+    }
+
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            "data" => Auth::guard('member')->user()
+        ]);
     }
 }

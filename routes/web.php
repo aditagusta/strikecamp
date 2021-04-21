@@ -37,6 +37,10 @@ Route::group(['middleware' => 'auth:pusat','cekstatus:1,2'], function () {
     Route::get('/cabang', 'Admin\CabangController@index')->name('cabang');
     Route::put('/cabang/edit', 'Admin\CabangController@edit')->name('editcabang');
 
+    // Data Paket
+    Route::get('/paket','Admin\PaketController@index')->name('paket');
+    Route::get('/table/paket','Admin\PaketController@table')->name('tablepaket');
+
     // Data User
     Route::get('/user', 'Admin\UserController@index')->name('user');
 

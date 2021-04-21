@@ -40,12 +40,20 @@
             <div class="form-group">
                 <label for="">Jumlah Paket</label>
                 {{-- <input type="number" class="form-control" id="jumlah" name="jumlah"> --}}
-                <select name="jumlah" id="jumlah" class="form-control">
+                <select name="jumlah" id="jumlah" class="form-control" onchange="pakets()">
                     <option value="">-- Silahkan Pilih --</option>
                     @foreach ($paket as $itempaket)
-                    <option value="{{$itempaket->paket}}">{{$itempaket->paket}} Paket</option>
+                    <option value="{{$itempaket->id_paket}}">{{$itempaket->nama_paket}}</option>
                     @endforeach
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="">Jumlah Latihan</label>
+                <input type="text" class="form-control" readonly id="latihan">
+            </div>
+            <div class="form-group">
+                <label for="">Harga</label>
+                <input type="text" class="form-control" readonly id="harga">
             </div>
             <div class="form-group">
                 <label for="">Tanggal Order</label>
@@ -65,6 +73,17 @@
         $('#table').load("{{route('tableorder')}}")
     });
 
+    function pakets()
+    {
+        var id =$('#jumlah').val()
+        axios.get("{{url('/api/pakets')}}/"+ id)
+        .then(function(res) {
+            var isi = res.data
+            $('#latihan').val(isi.jumlah)
+            $('#harga').val(isi.harga)
+        })
+    }
+
     function tambah()
     {
         $('#addModal').modal('show')
@@ -76,13 +95,13 @@
     $('#simpan').click(function(e){
         e.preventDefault();
         var id_member = $('#id_member').val();
-        var jumlah = $('#jumlah').val();
-        var tanggal = $('#tanggal').val();
+        var jumlah_paket = $('#jumlah').val();
+        var tanggal_order = $('#tanggal').val();
 
         axios.post("{{url('/api/order/')}}",{
             id_member: id_member,
-            jumlah: jumlah,
-            tanggal: tanggal,
+            jumlah_paket: jumlah_paket,
+            tanggal_order: tanggal_order,
         })
         .then(function (res) {
             var data = res.data
@@ -129,8 +148,8 @@
             'id_order': id_order,
             'id_user': id_user,
             'id_member': id_member,
-            'jumlah': jumlah_paket,
-            'tanggal': tanggal_order,
+            'jumlah_paket': jumlah_paket,
+            'tanggal_order': tanggal_order,
             'status': status,
             'id_cabang': id_cabang,
         }).then(function (res) {

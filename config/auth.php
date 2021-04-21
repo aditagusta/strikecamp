@@ -49,6 +49,10 @@ return [
         'pusat' => [
             'driver' => 'session',
             'provider' => 'pusats'
+        ],
+        'member' => [
+            'driver' => 'jwt',
+            'provider' => 'members'
         ]
     ],
 
@@ -77,6 +81,10 @@ return [
         'pusats' => [
             'driver' => 'eloquent',
             'model' => App\Model\User::class
+        ],
+        'members' => [
+            'driver' => 'eloquent',
+            'model' => App\Model\Member::class
         ]
 
         // 'users' => [

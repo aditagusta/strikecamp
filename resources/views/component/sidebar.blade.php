@@ -14,6 +14,7 @@
                     <li><a href="{{ route('banner') }}">Data Banner</a></li>
                     <li><a href="{{ route('katalog') }}">Data Katalog</a></li>
                     <li><a href="{{ route('cabang') }}">Data Cabang</a></li>
+                    <li><a href="{{ route('paket') }}">Data Paket</a></li>
                     <li><a href="{{ route('user') }}">Data Member Cabang</a></li>
                 </ul>
             </li>

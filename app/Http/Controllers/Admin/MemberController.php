@@ -9,6 +9,7 @@ use App\Model\Member;
 use Yajra\Datatables\Datatables;
 use Validator;
 use File;
+use Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class MemberController extends Controller
@@ -148,6 +149,49 @@ class MemberController extends Controller
             File::delete($destinationPath . '/' . $data->gambar_member);
             $data->delete();
             return response()->json(['message' => 'Data Berhasil Di Hapus', 'status' => 200]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
+        }
+    }
+
+    // Api Android
+    public function registerMember(Request $request)
+    {
+        $validator = Validator::make($request->all(), $this->rules);
+        if ($validator->fails()) {
+            return response()->json(['messageForm' => $validator->errors(), 'status' => 422, 'message' => 'Data Tidak Valid']);
+        } else {
+            $image = $request->file('gambar_member');
+            $new_name = rand() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images'), $new_name);
+            if ($request->password == $request->password1) {
+                $pass = password_hash($request->password, PASSWORD_DEFAULT);
+                $data = DB::table('tbl_member')->insert([
+                    'username' => $request->username,
+                    'password' => $pass,
+                    'password1' => $request->password1,
+                    'nama_member' => $request->nama_member,
+                    'telepon' => $request->telepon,
+                    'id_cabang' => $request->id_cabang,
+                    'gambar_member' => $new_name,
+                ]);
+                return response()->json(['message' => 'Data Berhasil Ditambahkan', 'status' => 200]);
+            } else {
+                return response()->json(['message' => 'Password Tidak Valid', 'status' => 200]);
+            }
+        }
+    }
+
+    public function getInfo()
+    {
+        $id = Auth::guard('member')->user()->id_member;
+        try {
+            if ($id) {
+                $data = Member::findOrFail($id);
+            } else {
+                $data = Member::all();
+            }
+            return response()->json(['data' => $data, 'status' => 200]);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
         }

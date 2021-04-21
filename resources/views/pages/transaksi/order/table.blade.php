@@ -5,7 +5,8 @@
         <tr style="text-align: center;">
             <th style="width: 2%">No</th>
             <th style="width: 20%">Nama Member</th>
-            <th style="width: 20%">Jumlah Paket</th>
+            <th style="width: 10%">Jumlah Paket</th>
+            <th style="width: 10%">Nama Cabang</th>
             <th style="width: 20%">Tanggal Order</th>
             <th style="width: 20%">Status</th>
             <th style="width: 18%">Aksi</th>
@@ -16,7 +17,8 @@
         <tr>
             <td>{{$no+1}}</td>
             <td>{{$item->nama_member}}</td>
-            <td>{{$item->jumlah_paket}} Paket</td>
+            <td>{{$item->nama_paket}}</td>
+            <td>{{$item->nama_cabang}}</td>
             <td>{{tanggal_indonesia($item->tanggal_order)}}</td>
             <td>
                 @if($item->status == 0)

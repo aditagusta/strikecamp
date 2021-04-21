@@ -72,4 +72,11 @@ class KatalogController extends Controller
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
         }
     }
+
+    // Api Android
+    public function dataKatalog()
+    {
+        $data = Katalog::all();
+        return response()->json(['status' => 200, 'message' => 'Data Ditemukan', 'data' => $data]);
+    }
 }

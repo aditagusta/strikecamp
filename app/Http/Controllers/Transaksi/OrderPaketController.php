@@ -18,8 +18,8 @@ class OrderPaketController extends Controller
     {
         $this->rules = array(
             'id_member' => 'required|numeric',
-            'jumlah' => 'required|numeric',
-            'tanggal' => 'required',
+            'jumlah_paket' => 'required|numeric',
+            'tanggal_order' => 'required',
         );
     }
 
@@ -30,11 +30,19 @@ class OrderPaketController extends Controller
         return view('pages.transaksi.order.index', $data);
     }
 
+    public function pakets($id)
+    {
+        $data = DB::table('tbl_paket')->where('id_paket', $id)->first();
+        echo json_encode($data);
+    }
+
     public function table()
     {
         $id = Auth::guard('pusat')->user()->id_cabang;
         $data = DB::table('tbl_order')
             ->join('tbl_member', 'tbl_order.id_member', 'tbl_member.id_member')
+            ->join('tbl_cabang', 'tbl_order.id_cabang', 'tbl_cabang.id_cabang')
+            ->join('tbl_paket', 'tbl_order.jumlah_paket', 'tbl_paket.id_paket')
             ->where('tbl_order.status', 0)
             ->where('tbl_order.id_cabang', $id)
             ->get();
@@ -52,8 +60,8 @@ class OrderPaketController extends Controller
             $data = DB::table('tbl_order')->insert([
                 'id_user' => $user,
                 'id_member' => $request->id_member,
-                'tanggal_order' => $request->tanggal,
-                'jumlah_paket' => $request->jumlah,
+                'tanggal_order' => $request->tanggal_order,
+                'jumlah_paket' => $request->jumlah_paket,
                 'id_cabang' => $cabang,
                 'status' => 0,
             ]);
@@ -89,8 +97,8 @@ class OrderPaketController extends Controller
                     ->update([
                         'id_user' => $request->id_user,
                         'id_member' => $request->id_member,
-                        'jumlah_paket' => $request->jumlah,
-                        'tanggal_order' => $request->tanggal,
+                        'jumlah_paket' => $request->jumlah_paket,
+                        'tanggal_order' => $request->tanggal_order,
                         'status' => $request->status,
                         'id_cabang' => $request->id_cabang,
                     ]);
@@ -107,6 +115,37 @@ class OrderPaketController extends Controller
             $data = OrderPaket::findOrFail($id);
             $data->delete();
             return response()->json(['message' => 'Data Berhasil Di Hapus', 'status' => 200]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
+        }
+    }
+
+    // Api Android
+    public function addPaket(Request $request)
+    {
+        $validator = Validator::make($request->all(), $this->rules);
+        if ($validator->fails()) {
+            return response()->json(['messageForm' => $validator->errors(), 'status' => 422, 'message' => 'Data Tidak Valid']);
+        } else {
+            $member = Auth::guard('member')->user()->id_member;
+            $data = DB::table('tbl_order')->insert([
+                'id_user' => $member,
+                'id_member' => $member,
+                'tanggal_order' => $request->tanggal_order,
+                'jumlah_paket' => $request->jumlah_paket,
+                'id_cabang' => $request->id_cabang,
+                'status' => 0,
+            ]);
+            return response()->json(['message' => 'Data Berhasil Ditambahkan', 'status' => 200]);
+        }
+    }
+
+    public function historyPaket(Request $request)
+    {
+        $id = Auth::guard('member')->user()->id_member;
+        try {
+            $data = DB::table('tbl_order')->where('id_member', $id)->get();
+            return response()->json(['data' => $data, 'status' => 200]);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
         }

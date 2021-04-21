@@ -66,4 +66,11 @@ class BannerController extends Controller
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
         }
     }
+
+    // Api Android
+    public function dataBanner()
+    {
+        $data = Banner::all();
+        return response()->json(['status' => 200, 'message' => 'Data Ditemukan', 'data' => $data]);
+    }
 }

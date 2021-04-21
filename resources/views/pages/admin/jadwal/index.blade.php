@@ -7,7 +7,7 @@
 @section('content')
 <div class="row mt-3">
     <div class="col-sm-12 col-md-12">
-        <button class="btn btn-sm btn-primary" onclick="tambah()"><i class="fa fa-plus"></i> Banner</button>
+        <button class="btn btn-sm btn-primary" onclick="tambah()"><i class="fa fa-plus"></i> Jadwal</button>
         <table id="table" class="table table-striped table-bordered table-responsive" style="width:100%; font-size:9px">
             <thead>
                 <tr style="text-align: center; font-size:10px">
@@ -76,11 +76,11 @@
                 <label for="">Tanggal</label>
                 <input type="hidden" class="form-control" id="id_user" name="id_user" value="{{Auth::guard('pusat')->user()->id_user}}">
                 <input type="hidden" class="form-control" id="id_cabang" name="id_cabang" value="{{Auth::guard('pusat')->user()->id_cabang}}">
-                <input type="date" class="form-control" id="jadwal" name="jadwal">
+                <input type="date" class="form-control" id="jadwal" name="jadwal" reqiured>
             </div>
             <div class="form-group">
                 <label for="">Trainer</label>
-                <select name="trainer" id="trainer" class="form-control">
+                <select name="trainer" id="trainer" class="form-control" required>
                     <option value="">-- Silahkan Pilih --</option>
                     @foreach ($trainer as $itemtrainer)
                     <option value="{{$itemtrainer->id_trainer}}">{{$itemtrainer->nama_trainer}}</option>
@@ -141,11 +141,11 @@
                 <input type="hidden" class="form-control" id="id_jadwal" name="id_jadwal">
                 <input type="hidden" class="form-control" id="user_" name="user_" value="{{Auth::guard('pusat')->user()->id_user}}">
                 <input type="hidden" class="form-control" id="cabang_" name="cabang_" value="{{Auth::guard('pusat')->user()->id_cabang}}">
-                <input type="date" class="form-control" id="jadwal_" name="jadwal_">
+                <input type="date" class="form-control" id="jadwal_" name="jadwal_" required>
             </div>
             <div class="form-group">
                 <label for="">Trainer</label>
-                <select name="trainer_" id="trainer_" class="form-control">
+                <select name="trainer_" id="trainer_" class="form-control" required>
                     <option value="">-- Silahkan Pilih --</option>
                     @foreach ($trainer as $itemtrainer)
                     <option value="{{$itemtrainer->id_trainer}}">{{$itemtrainer->nama_trainer}}</option>

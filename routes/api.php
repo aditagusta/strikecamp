@@ -7,8 +7,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('login/member', 'LoginController@loginMember');
-
 // Data Banner
 Route::get('banner/datatable', 'Admin\BannerController@datatable');
 Route::post('banner', 'Admin\BannerController@add');
@@ -32,6 +30,13 @@ Route::get('user/datatable', 'Admin\UserController@datatable');
 Route::get('user/{id}', 'Admin\UserController@get');
 Route::put('user', 'Admin\UserController@edit');
 Route::delete('user/{id}', 'Admin\UserController@remove');
+
+// Data Paket
+Route::get('paket/datatable', 'Admin\PaketController@datatable');
+Route::post('paket', 'Admin\PaketController@add');
+Route::get('paket/{id}', 'Admin\PaketController@get');
+Route::put('paket', 'Admin\PaketController@edit');
+Route::delete('paket/{id}', 'Admin\PaketController@remove');
 
 // Data Bank
 Route::post('bank', 'Admin\BankController@add');
@@ -60,6 +65,7 @@ Route::post('order', 'Transaksi\OrderPaketController@add');
 Route::get('order/{id}', 'Transaksi\OrderPaketController@get');
 Route::put('order', 'Transaksi\OrderPaketController@edit');
 Route::delete('order/{id}', 'Transaksi\OrderPaketController@remove');
+Route::get('pakets/{id}', 'Transaksi\OrderPaketController@pakets');
 
 // Booking
 Route::post('cekjam', 'Transaksi\BookingController@cekjam');
@@ -68,5 +74,25 @@ Route::get('cekpaket/{id}', 'Transaksi\BookingController@cekpaket');
 // Approve Order
 Route::post('approve/order', 'Transaksi\ApproveController@approve_order');
 
-// Api Android
-Route::get('jadwalapi', 'Transaksi\OrderPaketController@jadwal');
+
+// Api Android ===========================================================
+// Register, Login
+Route::post('register/member', 'Admin\MemberController@registerMember');
+Route::post('login/member', 'LoginController@loginMember');
+
+// Data Banner
+Route::get('data/banner', 'Admin\BannerController@dataBanner');
+
+// Data Katalog
+Route::get('data/katalog', 'Admin\KatalogController@dataKatalog');
+
+// Data Cabang
+Route::get('info/cabang', 'Admin\CabangController@getInfo');
+
+Route::group(["middleware" => "auth:member"], function() {
+    // Data Member
+    Route::get('info/member', 'Admin\MemberController@getInfo');
+    // Order Paket
+    Route::post('tambah/paket', 'Transaksi\OrderPaketController@addPaket');
+    Route::get('info/history', 'Transaksi\OrderPaketController@historyPaket');
+});
