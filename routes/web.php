@@ -47,6 +47,9 @@ Route::group(['middleware' => 'auth:pusat','cekstatus:1,2'], function () {
     // Contact Cabang
     Route::get('/contact', 'Admin\ContactController@index')->name('contact');
 
+    // Laporan Order
+    Route::get('/laporan/order', 'Report\ReportOrderController@index');
+
     // Data Bank
     Route::get('/bank', 'Admin\BankController@index')->name('bank');
 
@@ -61,7 +64,6 @@ Route::group(['middleware' => 'auth:pusat','cekstatus:1,2'], function () {
     Route::get('/jadwal', 'Admin\JadwalController@index')->name('jadwal');
     Route::post('/jadwal', 'Admin\JadwalController@add')->name('addjadwal');
     Route::put('/jadwal', 'Admin\JadwalController@edit')->name('editjadwal');
-    Route::post('/jadwal/jam', 'Admin\JadwalController@addjam')->name('addjam');
     Route::delete('/jadwal/{id?}', 'Admin\JadwalController@remove')->name('removejadwal');
 
     // Data Bank

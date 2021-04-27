@@ -18,14 +18,6 @@
                         <strong>{{ $message }}</strong>
                     </div>
                     @endif
-
-                    @if ($message = Session::get('error'))
-                    <div class="alert alert-danger alert-block">
-                        <button type="button" class="close" data-dismiss="alert">×</button>
-                        <strong>{{ $message }}</strong>
-                    </div>
-                    @endif
-
                     <form action="{{route('addbooking')}}" method="POST">
                         @csrf
                         <div class="row">
@@ -82,13 +74,24 @@
                @foreach ($booking as $no => $bk)
                 <tr>
                     <td>{{$no+1}}</td>
-                    <td>{{$bk->nama_member}}</td>
-                    <td>{{$bk->id_jam}}
-                    <td>{{tanggal_indonesia($bk->jadwal)}}</td>
+                    <td>{{$bk['nama_member']}}</td>
+                    <td>
+                        {{-- @php
+                            $tes = explode(",",$bk->id_jam);
+                        @endphp
+                        @foreach ($tes as $b)
+                            @php
+                                $datass = DB::table('tbl_jam')->where('id_jam', $b)->first();
+                                echo  "-".$datass->jam;
+                            @endphp
+                        @endforeach --}}
+                        {{$bk['jam']}}
+                    </td>
+                    <td>{{tanggal_indonesia($bk['jadwal'])}}</td>
                     <td>
                         <div class="row">
                             <div class="col-sm-12 col-md-12">
-                                <form method="POST" action="{{ route('removebooking', [$bk->id_booking]) }}">
+                                <form method="POST" action="{{ route('removebooking', [$bk['id_booking']]) }}">
                                     @method('DELETE')
                                     @csrf
                                     <button class="btn btn-sm btn-danger" type="submit">Hapus</button>
@@ -112,14 +115,27 @@
         }).then(function(res){
             var cek = res.data;
             // console.log(cek[0].id_jam)
-            // console.log(cek)
-            var tes = cek[0].id_jam.split(",")
+            console.log(cek);
+            if(cek == '')
+            {
+                var tes = ''
+            }else{
+                var tes = cek[0].id_jam.split(",")
+            }
             console.log(tes);
 
-        // Cara 1
-            for(var i = 0; i < tes.length; i++){
-                document.getElementById(tes[i]).checked = true;
-                document.getElementById(tes[i]).disabled = true;
+            if(tes != '')
+            {
+                for(var i = 0; i < tes.length; i++){
+                    document.getElementById(tes[i]).checked = true;
+                    document.getElementById(tes[i]).disabled = true;
+                }
+            } else {
+                var list_jam = document.getElementsByName("jam[]");
+                // reset centang jam
+                for (var x = 0; x < list_jam.length; x++) {
+                    list_jam[x].checked = false;
+                }
             }
         })
     }
@@ -130,7 +146,8 @@
        axios.get("{{url('/api/cekpaket')}}/"+id)
         .then(function(res){
             var data = res.data
-            $('#paket').val(data.paket)
+            console.log(data)
+            $('#paket').val(data.sisa_paket)
         })
     }
 

@@ -20,6 +20,8 @@
             </li>
             <li><a href="{{route('contact')}}"><i class="fa fa-home"></i> Contact Cabang</a>
             </li>
+            <li><a href="{{url('laporan/order')}}"><i class="fa fa-home"></i> Laporan Order Paket</a>
+            </li>
         </ul>
     </div>
 

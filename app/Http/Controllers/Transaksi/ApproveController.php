@@ -29,24 +29,20 @@ class ApproveController extends Controller
         if ($status == 1) {
             // ambil data order
             $order = DB::table('tbl_order')->join('tbl_paket','tbl_order.jumlah_paket','tbl_paket.id_paket')->where('id_order', $id)->first();
+            $jumlah = $order->jumlah;
+            // insert ke table paket
+            $paket_member = DB::table('paket_member')
+            ->insert([
+                'tanggal_beli' => $order->tanggal_order,
+                'id_member' => $order->id_member,
+                'id_cabang' => $order->id_cabang,
+                'sisa_paket' => $jumlah
+            ]);
+            // update status
             $updateorder = DB::table('tbl_order')
                 ->where('id_order', $id)
                 ->update([
                     'status' => $status
-                ]);
-
-            // ambil data member
-            $member = DB::table('tbl_member')->where('id_member', $order->id_member)->first();
-            if ($member->paket == 0) {
-                $up = $order->jumlah;
-            } else {
-                $up = $order->jumlah + $member->paket;
-            }
-            $update = DB::table('tbl_member')
-                ->where('id_member', $order->id_member)
-                ->where('id_cabang', $order->id_cabang)
-                ->update([
-                    'paket' => $up
                 ]);
         } else {
             $order = DB::table('tbl_order')->where('id_order', $id)->first();

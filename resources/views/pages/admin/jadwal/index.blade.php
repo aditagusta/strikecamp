@@ -5,12 +5,19 @@
 @section('page-title','Data Jadwal')
 <!-- Page Content -->
 @section('content')
+{{-- {{dd(session("status"))}} --}}
 <div class="row mt-3">
     <div class="col-sm-12 col-md-12">
+        {{-- @if ($message = session('status'))
+        <div class="alert alert-success alert-block">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <strong>{{ $message }}</strong>
+        </div>
+        @endif --}}
         <button class="btn btn-sm btn-primary" onclick="tambah()"><i class="fa fa-plus"></i> Jadwal</button>
-        <table id="table" class="table table-striped table-bordered table-responsive" style="width:100%; font-size:9px">
+        <table id="table" class="table table-striped table-bordered table-responsive">
             <thead>
-                <tr style="text-align: center; font-size:10px">
+                <tr style="text-align: center;">
                     <th style="width: 2%;">No</th>
                     <th>Tanggal</th>
                     <th>Jam</th>
@@ -19,37 +26,39 @@
                 </tr>
             </thead>
             <tbody>
+                {{-- @dd($jadwal); --}}
                 @foreach ($jadwal as $no => $itemjadwal)
                 <tr>
                     <td>{{$no+1}}</td>
-                    <td>{{tanggal_indonesia($itemjadwal->jadwal)}}</td>
+                    <td>{{tanggal_indonesia($itemjadwal['jadwal'])}}</td>
                     <td>
-                        @php
-                            $datajam = DB::table('tbl_agenda')
-                            ->join('tbl_jam','tbl_agenda.id_jam','tbl_jam.id_jam')
-                            ->where('tbl_agenda.id_jadwal', $itemjadwal->id_jadwal)
-                            ->get();
-                        @endphp
-                        @foreach ($datajam as $dj)
-                        <li>{{$dj->jam}}</li>
-                        @endforeach
+                        {{-- @php
+                            $tes = explode(",",$itemjadwal->id_jam);
+                        @endphp --}}
+                        {{-- @foreach ($itemjadwal['id_jam'] as $b)
+                            @php
+                                $datass = DB::table('tbl_jam')->where('id_jam', $b)->first();
+                                echo  "<li>".$datass->jam."</li>";
+                            @endphp
+                        @endforeach --}}
+                        {{$itemjadwal['jam']}}
                     </td>
-                    <td>{{$itemjadwal->nama_trainer}}</td>
+                    <td>{{$itemjadwal['nama_trainer']}}</td>
                     <td>
                         <div class="row">
-                            <div class="col-sm-12 col-md-4">
-                                <form method="POST" action="{{ route('removejadwal', [$itemjadwal->id_jadwal]) }}">
+                            <div class="col-sm-12 col-md-6">
+                                <form method="POST" action="{{ route('removejadwal', [$itemjadwal['id_jadwal']]) }}">
                                     @method('DELETE')
                                     @csrf
                                     <button class="btn btn-sm btn-danger" type="submit">Hapus</button>
                                 </form>
                             </div>
-                            <div class="col-sm-12 col-md-4">
-                                <button type="button" onclick="edited('{{$itemjadwal->id_jadwal}}','{{$itemjadwal->jadwal}}','{{$itemjadwal->id_trainer}}')" class="btn btn-sm btn-warning">Ubah</button>
+                            <div class="col-sm-12 col-md-6">
+                                <button type="button" onclick="edited('{{$itemjadwal['id_jadwal']}}','{{$itemjadwal['jadwal']}}','{{$itemjadwal['id_trainer']}}')" class="btn btn-sm btn-warning">Ubah</button>
                             </div>
-                            <div class="col-sm-12 col-md-4">
+                            {{-- <div class="col-sm-12 col-md-4">
                                 <button type="button" class="btn btn-sm btn-success"onclick="tekan('{{$itemjadwal->id_jadwal}}')">Tambah Jam</button>
-                            </div>
+                            </div> --}}
                         </div>
                     </td>
                 </tr>
@@ -87,6 +96,13 @@
                     @endforeach
                 </select>
             </div>
+            <div class="row">
+                @foreach ($jam as $itemjam)
+                <div class="col-sm-3">
+                    <input type="checkbox" name="jam[]" value="{{$itemjam->id_jam}}">&nbsp&nbsp&nbsp{{$itemjam->jam}}
+                </div>
+                @endforeach
+            </div>
             <button type="submit" class="btn btn-primary" id="simpan">Simpan</button>
           </form>
         </div>
@@ -94,41 +110,14 @@
     </div>
 </div>
 
-{{-- Modal Tambah Jam --}}
-<div class="modal fade" id="scheduleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Form Tambah Data</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form action="{{route('addjam')}}" method="POST">
-            @csrf
-            <div class="row">
-                <input type="hidden" class="form-control" name="id_jadwal">
-                @foreach ($jam as $itemjam)
-                <div class="col-sm-3">
-                    <input type="checkbox" name="jam[]"  value="{{$itemjam->id_jam}}">&nbsp&nbsp&nbsp{{$itemjam->jam}}
-                </div>
-                @endforeach
-            </div>
-            <button class="btn btn-sm btn-primary" type="submit">Simpan</button>
-          </form>
-        </div>
-      </div>
-    </div>
-</div>
 
 {{-- Modal Edit --}}
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="editModal" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Form Ubah Data</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close" onclick="bersih()" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -152,12 +141,20 @@
                     @endforeach
                 </select>
             </div>
+            <div class="row">
+                @foreach ($jam as $itemjam)
+                <div class="col-sm-3">
+                    <input type="checkbox" name="jam[]" id="{{$itemjam->id_jam}}" value="{{$itemjam->id_jam}}">&nbsp&nbsp&nbsp{{$itemjam->jam}}
+                </div>
+                @endforeach
+            </div>
             <button type="submit" class="btn btn-primary">Simpan</button>
           </form>
         </div>
       </div>
     </div>
 </div>
+
 <script>
     $('#table').DataTable();
     function tambah()
@@ -168,53 +165,42 @@
     function edited(idjadwal,jadwal,idtrainer)
     {
         console.log(idjadwal);
-        $('#id_jadwal').val(idjadwal)
-        $('#jadwal_').val(jadwal)
-        $('#trainer_').val(idtrainer)
-        $('#editModal').modal('show')
-    }
-
-    function tekan(id)
-    {
-        $('#id').val(id)
-        $('[name="id_jadwal"]').val(id)
         axios.post("{{url('/api/schedule')}}",{
-            'id_jadwal':id
+            'id_jadwal':idjadwal
         }).then(function(res){
             var cek = res.data;
-            console.log(cek)
+            // console.log(cek);
+            if(cek[0].id_jam == null)
+            {
+                var tes = cek[0].id_jam
+            }else{
+                var tes = cek[0].id_jam.split(",")
+            }
+            console.log(tes);
 
         // Cara 1
-            // for(var i = 0; i < cek.length; i++){
-            //     document.getElementById(cek[i].id_jam).checked = true;
-            // }
-
-        // Cara 2
-            if(cek != ''){
-                var list_jam = document.getElementsByName("jam[]");
-                console.log(cek[0].id_jam);
-                // console.log(list_jam.length);
-                // reset centang jam
-                for (var x = 0; x < list_jam.length; x++) {
-                    list_jam[x].checked = false;
+            if(tes != null)
+            {
+                for(var i = 0; i < tes.length; i++){
+                document.getElementById(tes[i]).checked = true;
                 }
-                for (var x = 0; x < list_jam.length; x++) {
-                    for (var i = 0; i < cek.length; i++) {
-                        console.log(cek[i].id_jam);
-                        if (list_jam[x].value == cek[i].id_jam) {
-                            list_jam[x].checked = true;
-                        }
-                    }
-                }
-            }else{
+            } else {
                 var list_jam = document.getElementsByName("jam[]");
                 // reset centang jam
                 for (var x = 0; x < list_jam.length; x++) {
                     list_jam[x].checked = false;
                 }
             }
-            $('#scheduleModal').modal('show')
+            $('#id_jadwal').val(idjadwal)
+            $('#jadwal_').val(jadwal)
+            $('#trainer_').val(idtrainer)
+            $('#editModal').modal('show')
         })
+    }
+
+    function bersih()
+    {
+        $('[name="jam[]"]').prop('checked',false)
     }
 </script>
 @endsection

@@ -176,6 +176,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        RealRashid\SweetAlert\SweetAlertServiceProvider::class,
     ],
 
     /*
@@ -227,6 +228,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
     ],
 
 ];

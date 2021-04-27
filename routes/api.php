@@ -51,7 +51,7 @@ Route::get('trainer/datatable/{id}', 'Admin\TrainerController@datatable');
 Route::get('trainer/{id}', 'Admin\TrainerController@get');
 Route::delete('trainer/{id}', 'Admin\TrainerController@remove');
 
-// Data Schedule
+// Data Jadwal
 Route::post('schedule', "Admin\JadwalController@getjam");
 
 // Data Member
@@ -95,4 +95,9 @@ Route::group(["middleware" => "auth:member"], function() {
     // Order Paket
     Route::post('tambah/paket', 'Transaksi\OrderPaketController@addPaket');
     Route::get('info/history', 'Transaksi\OrderPaketController@historyPaket');
+    Route::get('info/paket/aktif', 'Transaksi\OrderPaketController@paketAktif');
+    // Jadwal
+    Route::get('info/jadwal/{id}', 'Admin\JadwalController@getInfo');
+    // Data Paket
+    Route::get('info/paket', 'Admin\PaketController@getInfo');
 });

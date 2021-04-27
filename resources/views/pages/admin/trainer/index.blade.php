@@ -7,12 +7,12 @@
 @section('content')
 <div class="row mt-3">
     <div class="col-sm-12 col-md-12">
-        @if ($message = Session::get('status'))
+        {{-- @if ($message = Session::get('status'))
         <div class="alert alert-success alert-block">
             <button type="button" class="close" data-dismiss="alert">×</button>
             <strong>{{ $message }}</strong>
         </div>
-        @endif
+        @endif --}}
         <button class="btn btn-sm btn-primary" onclick="tambah()"><i class="fa fa-plus"></i> Trainer</button>
         <table id="table" class="table table-striped table-bordered table-responsive" style="width:100%; font-size:9px">
             <thead>

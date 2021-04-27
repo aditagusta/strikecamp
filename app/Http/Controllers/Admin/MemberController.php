@@ -186,12 +186,17 @@ class MemberController extends Controller
     {
         $id = Auth::guard('member')->user()->id_member;
         try {
-            if ($id) {
-                $data = Member::findOrFail($id);
-            } else {
-                $data = Member::all();
-            }
-            return response()->json(['data' => $data, 'status' => 200]);
+            // if ($id) {
+            //     $data = Member::findOrFail($id);
+            // } else {
+            //     $data = Member::all();
+            // }
+            $data = DB::table('tbl_member')
+                ->leftJoin('paket_member', 'tbl_member.id_member','paket_member.id_member')
+                ->select('tbl_member.*', 'paket_member.sisa_paket')
+                ->where('tbl_member.id_member', $id)
+                ->get();
+            return response()->json(['data' => $data, 'status' => 200 , 'message'=> 'Data Ditemukan']);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
         }

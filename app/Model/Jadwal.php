@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Jadwal extends Model
 {
-    //
+    public $timestamps = false;
+    // define table
+    protected $table = 'tbl_jadwal';
+    // define primary key
+    protected $primaryKey = 'id_jadwal';
+    // define field
+    protected $fillable = ['id_user', 'jadwal', 'id_cabang', 'id_trainer','id_jam'];
 }

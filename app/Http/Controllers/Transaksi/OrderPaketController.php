@@ -25,7 +25,9 @@ class OrderPaketController extends Controller
 
     public function index()
     {
-        $data['member'] = DB::table('tbl_member')->where('id_cabang', Auth::guard('pusat')->user()->id_cabang)->get();
+        $data['member'] = DB::table('tbl_member')
+            ->where('tbl_member.id_cabang', Auth::guard('pusat')->user()->id_cabang)
+            ->get();
         $data['paket'] = DB::table('tbl_paket')->get();
         return view('pages.transaksi.order.index', $data);
     }
@@ -55,17 +57,43 @@ class OrderPaketController extends Controller
         if ($validator->fails()) {
             return response()->json(['messageForm' => $validator->errors(), 'status' => 422, 'message' => 'Data Tidak Valid']);
         } else {
+            $awal = $request->tanggal_order;
+            $akhir = date('Y-m-d', strtotime('+30 days', strtotime($awal)));
             $user = Auth::guard('pusat')->user()->id_user;
             $cabang = Auth::guard('pusat')->user()->id_cabang;
-            $data = DB::table('tbl_order')->insert([
-                'id_user' => $user,
-                'id_member' => $request->id_member,
-                'tanggal_order' => $request->tanggal_order,
-                'jumlah_paket' => $request->jumlah_paket,
-                'id_cabang' => $cabang,
-                'status' => 0,
-            ]);
-            return response()->json(['message' => 'Data Berhasil Ditambahkan', 'status' => 200]);
+
+            // cek tanggal order terakhir
+            $today = date('Y-m-d');
+            $cekexp = DB::table('tbl_order')->where('id_member', $request->id_member)->first();
+            if($cekexp == true)
+            {
+                if($cekexp->tanggal_exp > $today)
+                {
+                    return response()->json(['message' => 'Masih Dalam Batas Pembelian', 'status' => 200]);
+                } else {
+                    $data = DB::table('tbl_order')->insert([
+                        'id_user' => $user,
+                        'id_member' => $request->id_member,
+                        'tanggal_order' => $request->tanggal_order,
+                        'tanggal_exp' => $akhir,
+                        'jumlah_paket' => $request->jumlah_paket,
+                        'id_cabang' => $cabang,
+                        'status' => 0,
+                    ]);
+                }
+                return response()->json(['message' => 'Data Berhasil Ditambahkan', 'status' => 200]);
+            } else {
+                $data = DB::table('tbl_order')->insert([
+                    'id_user' => $user,
+                    'id_member' => $request->id_member,
+                    'tanggal_order' => $request->tanggal_order,
+                    'tanggal_exp' => $akhir,
+                    'jumlah_paket' => $request->jumlah_paket,
+                    'id_cabang' => $cabang,
+                    'status' => 0,
+                ]);
+                return response()->json(['message' => 'Data Berhasil Ditambahkan', 'status' => 200]);
+            }
         }
     }
 
@@ -127,16 +155,43 @@ class OrderPaketController extends Controller
         if ($validator->fails()) {
             return response()->json(['messageForm' => $validator->errors(), 'status' => 422, 'message' => 'Data Tidak Valid']);
         } else {
+            $awal = $request->tanggal_order;
+            $akhir = date('Y-m-d', strtotime('+30 days', strtotime($awal)));
+            $user = Auth::guard('member')->user()->id_member;
             $member = Auth::guard('member')->user()->id_member;
-            $data = DB::table('tbl_order')->insert([
-                'id_user' => $member,
-                'id_member' => $member,
-                'tanggal_order' => $request->tanggal_order,
-                'jumlah_paket' => $request->jumlah_paket,
-                'id_cabang' => $request->id_cabang,
-                'status' => 0,
-            ]);
-            return response()->json(['message' => 'Data Berhasil Ditambahkan', 'status' => 200]);
+
+            // cek tanggal order terakhir
+            $today = date('Y-m-d');
+            $cekexp = DB::table('tbl_order')->where('id_member', $member)->where('id_cabang', $request->id_cabang)->first();
+            if($cekexp == true)
+            {
+                if($cekexp->tanggal_exp > $today)
+                {
+                    return response()->json(['message' => 'Masih Dalam Batas Pembelian', 'status' => 404]);
+                } else {
+                    $data = DB::table('tbl_order')->insert([
+                        'id_user' => $user,
+                        'id_member' => $request->id_member,
+                        'tanggal_order' => $request->tanggal_order,
+                        'tanggal_exp' => $akhir,
+                        'jumlah_paket' => $request->jumlah_paket,
+                        'id_cabang' => $request->id_cabang,
+                        'status' => 0,
+                    ]);
+                }
+                return response()->json(['message' => 'Data Berhasil Ditambahkan', 'status' => 200]);
+            } else {
+                $data = DB::table('tbl_order')->insert([
+                    'id_user' => $user,
+                    'id_member' => $request->id_member,
+                    'tanggal_order' => $request->tanggal_order,
+                    'tanggal_exp' => $akhir,
+                    'jumlah_paket' => $request->jumlah_paket,
+                    'id_cabang' => $request->id_cabang,
+                    'status' => 0,
+                ]);
+                return response()->json(['message' => 'Data Berhasil Ditambahkan', 'status' => 200]);
+            }
         }
     }
 
@@ -144,7 +199,32 @@ class OrderPaketController extends Controller
     {
         $id = Auth::guard('member')->user()->id_member;
         try {
-            $data = DB::table('tbl_order')->where('id_member', $id)->get();
+            $data = DB::table('tbl_order')
+                ->join('tbl_paket','tbl_order.jumlah_paket','tbl_paket.id_paket')
+                ->join('tbl_cabang', 'tbl_order.id_cabang','tbl_cabang.id_cabang')
+                ->select('tbl_order.*','tbl_paket.nama_paket','tbl_paket.harga','tbl_cabang.nama_cabang')
+                ->where('tbl_order.id_member', $id)
+                ->where('tbl_order.status' , 1)
+                ->get();
+            return response()->json(['data' => $data, 'status' => 200]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
+        }
+    }
+
+    public function paketAktif(Request $request)
+    {
+        $id = Auth::guard('member')->user()->id_member;
+        $today = date('Y-m-d');
+        try {
+            $data = DB::table('tbl_order')
+                ->join('tbl_paket','tbl_order.jumlah_paket','tbl_paket.id_paket')
+                ->join('tbl_cabang', 'tbl_order.id_cabang','tbl_cabang.id_cabang')
+                ->select('tbl_order.*','tbl_paket.nama_paket','tbl_paket.harga','tbl_cabang.nama_cabang')
+                ->where('tbl_order.id_member', $id)
+                ->where('tbl_order.status' , 1)
+                ->where('tbl_order.tanggal_exp', '>' , $today)
+                ->get();
             return response()->json(['data' => $data, 'status' => 200]);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);

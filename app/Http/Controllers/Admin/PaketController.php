@@ -92,4 +92,15 @@ class PaketController extends Controller
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
         }
     }
+
+    // Api Android
+    public function getInfo()
+    {
+        try {
+            $data = DB::table('tbl_paket')->get();
+            return response()->json(['data' => $data, 'status' => 200 , 'message'=> 'Data Ditemukan']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
+        }
+    }
 }
