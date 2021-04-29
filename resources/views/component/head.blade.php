@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Strike Camp</title>
-
+    <link rel="icon" href="{{asset('logo/Strike White 2020 Logo.png')}}">
     <!-- Bootstrap -->
     <link href="{{asset('/assetsbe/vendors/bootstrap/dist/css/bootstrap.min.css')}}" rel="stylesheet">
     <!-- Font Awesome -->

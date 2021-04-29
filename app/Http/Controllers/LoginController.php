@@ -44,7 +44,7 @@ class LoginController extends Controller
         if ($token = Auth::guard('member')->attempt(["username" => $request->username, "password" => $request->password])) {
             return $this->respondWithToken($token);
         } else {
-            return response()->json("Error");
+            return response()->json(['status' => 404,'message' => 'Cek Username dan Password']);
         }
     }
 
@@ -53,6 +53,8 @@ class LoginController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'status' => 200,
+            'message' => 'Berhasil Melakukan Login',
             "data" => Auth::guard('member')->user()
         ]);
     }

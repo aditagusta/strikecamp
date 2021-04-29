@@ -8,7 +8,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Gentelella Alela! | </title>
+    <title>Strike Camp</title>
+    <link rel="icon" href="{{asset('logo/Strike White 2020 Logo.png')}}">
 
     <!-- Bootstrap -->
     <link href="{{asset('assetsbe/vendors/bootstrap/dist/css/bootstrap.min.css')}}" rel="stylesheet">
@@ -36,6 +37,7 @@
       <div class="login_wrapper">
         <div class="animate form login_form">
           <section class="login_content">
+              <center><img src="{{asset('logo/Strike TC Polos Black 2020.png')}}" style="width: 100%;height:170px" alt=""></center>
             <form method="POST" action="{{route('postlogin')}}">
                 @csrf
               <h1>Login Form</h1>
@@ -60,8 +62,8 @@
                 <br />
 
                 <div>
-                  <h1><i class="fa fa-paw"></i> Gentelella Alela!</h1>
-                  <p>©2016 All Rights Reserved. Gentelella Alela! is a Bootstrap 3 template. Privacy and Terms</p>
+                    <p>©2021 All Rights Reserved</p>
+                    <a href="https://sukumaya.id/">www.sukumaya.id</a>
                 </div>
               </div>
             </form>

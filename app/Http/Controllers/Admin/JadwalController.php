@@ -9,9 +9,24 @@ use DB;
 // use Alert;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Model\Jadwal;
+use Validator;
 
 class JadwalController extends Controller
 {
+    public function __construct()
+    {
+        $this->rules = array(
+            'jadwal' => 'required',
+            'trainer' => 'required',
+            'jam' => 'required',
+        );
+
+        $this->edit = array(
+            'jadwal_' => 'required',
+            'trainer_' => 'required',
+        );
+    }
+
     public function index()
     {
         $data['jam'] = DB::table('tbl_jam')->get();
@@ -43,24 +58,36 @@ class JadwalController extends Controller
 
     public function add(Request $r)
     {
-        $jams = $r->jam;
-        if($jams != null)
-        {
-            $id_jam = implode(",",$jams);
-            $simpan = DB::table('tbl_jadwal')
-                ->insert([
-                    'id_user' => $r->id_user,
-                    'jadwal' => $r->jadwal,
-                    'id_cabang' => $r->id_cabang,
-                    'id_trainer' => $r->trainer,
-                    'id_jam' => $id_jam
-                ]);
-
-                // $r->session()->put("status", "Berhasil Menambah Jadwal");
-                return redirect()->route("jadwal");
+        $validator = Validator::make($r->all(), $this->rules);
+        if ($validator->fails()) {
+            return redirect("/jadwal");
         } else {
-            // $r->session()->put("status", "Gagal Menambah Jadwal Periksa Inputan");
-            return redirect()->route("jadwal");
+            $cektrainer = DB::table('tbl_jadwal')->where('id_trainer',$r->trainer)->where('jadwal',$r->jadwal)->first();
+            // dd($cektrainer);
+            if($cektrainer != null)
+            {
+                return redirect()->route("jadwal");
+            } else {
+                $jams = $r->jam;
+                if($jams != null)
+                {
+                    $id_jam = implode(",",$jams);
+                    $simpan = DB::table('tbl_jadwal')
+                        ->insert([
+                            'id_user' => $r->id_user,
+                            'jadwal' => $r->jadwal,
+                            'id_cabang' => $r->id_cabang,
+                            'id_trainer' => $r->trainer,
+                            'id_jam' => $id_jam
+                        ]);
+
+                        // $r->session()->put("status", "Berhasil Menambah Jadwal");
+                        return redirect()->route("jadwal");
+                } else {
+                    // $r->session()->put("status", "Gagal Menambah Jadwal Periksa Inputan");
+                    return redirect()->route("jadwal");
+                }
+            }
         }
     }
 
@@ -80,52 +107,83 @@ class JadwalController extends Controller
 
     public function edit(Request $req)
     {
-        $jam = $req->jam;
-        if($jam != null)
-        {
-            $id_jam = implode(",",$jam);
-            $edited = DB::table('tbl_jadwal')
-                ->where('id_jadwal', $req->id_jadwal)
-                ->update([
-                    'jadwal' => $req->jadwal_,
-                    'id_trainer' => $req->trainer_,
-                    'id_jam' => $id_jam
-                ]);
-                if($edited == TRUE)
-                {
-                    // cek booking
-                    $cekbooking = DB::table('tbl_booking')->where('id_jadwal', $req->id_jadwal)->get();
-                    // dd($cekbooking);
-                        foreach ($cekbooking as $key => $c) {
-                            $jamlatihan = explode(",",$c->id_jam);
-                            $jumlah = count($jamlatihan);
-                            // hapus di booking
-                            $delbooking = DB::table('tbl_booking')->where('id_jadwal',$req->id_jadwal)->delete();
-                            // ambil data di sisa paket
-                            $paket_member = DB::table('paket_member')
-                                ->where('id_member', $c->id_member)
-                                ->where('id_cabang',$c->id_cabang)
-                                ->first();
-                            $kembali = $paket_member->sisa_paket + $jumlah;
-                            // kembalikan paket tadi
-                            $uppaket = DB::table('paket_member')
-                            ->where('id_member', $c->id_member)
-                            ->where('id_cabang',$c->id_cabang)
-                            ->update(['sisa_paket' => $kembali]);
-                        }
-                }
-                // $req->session()->put("status", "Data Jadwal Berhasil Diubah");
-                return redirect()->route("jadwal");
+        $validator = Validator::make($req->all(), $this->edit);
+        if ($validator->fails()) {
+            return redirect("/jadwal");
         } else {
-            // $req->session()->put("status", "Gagal Merubah Jadwal");
-            return redirect()->route("jadwal");
+            $cektrainer = DB::table('tbl_jadwal')->where('id_trainer',$req->trainer_)->where('jadwal',$req->jadwal_)->first();
+            // dd($cektrainer);
+            if($cektrainer != null)
+            {
+                return redirect()->route("jadwal");
+            } else {
+                $jam = $req->jam;
+                if($jam != null)
+                {
+                    $id_jam = implode(",",$jam);
+                    $edited = DB::table('tbl_jadwal')
+                        ->where('id_jadwal', $req->id_jadwal)
+                        ->update([
+                            'jadwal' => $req->jadwal_,
+                            'id_trainer' => $req->trainer_,
+                            'id_jam' => $id_jam
+                        ]);
+                        if($edited == TRUE)
+                        {
+                            // cek booking
+                            $cekbooking = DB::table('tbl_booking')->where('id_jadwal', $req->id_jadwal)->get();
+                            // dd($cekbooking);
+                                foreach ($cekbooking as $key => $c) {
+                                    $jamlatihan = explode(",",$c->id_jam);
+                                    $jumlah = count($jamlatihan);
+                                    // hapus di booking
+                                    $delbooking = DB::table('tbl_booking')->where('id_jadwal',$req->id_jadwal)->delete();
+                                    // ambil data di sisa paket
+                                    $paket_member = DB::table('paket_member')
+                                        ->where('id_member', $c->id_member)
+                                        ->where('id_cabang',$c->id_cabang)
+                                        ->first();
+                                    $kembali = $paket_member->sisa_paket + $jumlah;
+                                    // kembalikan paket tadi
+                                    $uppaket = DB::table('paket_member')
+                                    ->where('id_member', $c->id_member)
+                                    ->where('id_cabang',$c->id_cabang)
+                                    ->update(['sisa_paket' => $kembali]);
+                                }
+                        }
+                        // $req->session()->put("status", "Data Jadwal Berhasil Diubah");
+                        return redirect()->route("jadwal");
+                } else {
+                    // $req->session()->put("status", "Gagal Merubah Jadwal");
+                    return redirect()->route("jadwal");
+                }
+            }
         }
     }
 
     public function remove(Request $req, $id)
     {
         $deleted['jadwal'] = DB::table('tbl_jadwal')->where('id_jadwal', $id)->delete();
+        // cek booking
         if ($deleted == TRUE) {
+            $cekbooking = DB::table('tbl_booking')->where('id_jadwal', $id)->get();
+                foreach ($cekbooking as $key => $c) {
+                    $jamlatihan = explode(",",$c->id_jam);
+                    $jumlah = count($jamlatihan);
+                    // hapus di booking
+                    $delbooking = DB::table('tbl_booking')->where('id_jadwal',$id)->delete();
+                    // ambil data di sisa paket
+                    $paket_member = DB::table('paket_member')
+                        ->where('id_member', $c->id_member)
+                        ->where('id_cabang',$c->id_cabang)
+                        ->first();
+                    $kembali = $paket_member->sisa_paket + $jumlah;
+                    // kembalikan paket tadi
+                    $uppaket = DB::table('paket_member')
+                    ->where('id_member', $c->id_member)
+                    ->where('id_cabang',$c->id_cabang)
+                    ->update(['sisa_paket' => $kembali]);
+            }
                 // $req->session()->put("status", "Berhasil Menghapus Jadwal");
                 return redirect()->route("jadwal");
         } else {

@@ -10,11 +10,9 @@
         <div class="mb-2">
             <div class="card">
                 <div class="card-body">
-                    {{-- @dd(session()); --}}
-
                     @if ($message = Session::get('success'))
                     <div class="alert alert-success alert-block">
-                      <button type="button" class="close" data-dismiss="alert">×</button>
+                        <button type="button" class="close" data-dismiss="alert">×</button>
                         <strong>{{ $message }}</strong>
                     </div>
                     @endif
@@ -114,29 +112,28 @@
             'id_jadwal':id
         }).then(function(res){
             var cek = res.data;
-            // console.log(cek[0].id_jam)
-            console.log(cek);
-            if(cek == '')
-            {
-                var tes = ''
-            }else{
-                var tes = cek[0].id_jam.split(",")
-            }
-            console.log(tes);
+            // console.log(cek);
+            // if(cek == '')
+            // {
+            //     var tes = ''
+            // }else{
+            //     var tes = cek.id_jam.split(",")
+            // }
+            // console.log(tes);
 
-            if(tes != '')
-            {
-                for(var i = 0; i < tes.length; i++){
-                    document.getElementById(tes[i]).checked = true;
-                    document.getElementById(tes[i]).disabled = true;
-                }
-            } else {
+            // if(tes != '')
+            // {
+            //     for(var i = 0; i < tes.length; i++){
+            //         document.getElementById(tes[i]).checked = true;
+            //         document.getElementById(tes[i]).disabled = true;
+            //     }
+            // } else {
                 var list_jam = document.getElementsByName("jam[]");
                 // reset centang jam
                 for (var x = 0; x < list_jam.length; x++) {
                     list_jam[x].checked = false;
                 }
-            }
+            // }
         })
     }
 

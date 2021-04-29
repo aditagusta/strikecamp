@@ -91,13 +91,17 @@ Route::get('info/cabang', 'Admin\CabangController@getInfo');
 
 Route::group(["middleware" => "auth:member"], function() {
     // Data Member
-    Route::get('info/member', 'Admin\MemberController@getInfo');
+    Route::get('info/member/{id}', 'Admin\MemberController@getInfo');
     // Order Paket
     Route::post('tambah/paket', 'Transaksi\OrderPaketController@addPaket');
     Route::get('info/history', 'Transaksi\OrderPaketController@historyPaket');
     Route::get('info/paket/aktif', 'Transaksi\OrderPaketController@paketAktif');
+    Route::get('info/paket/cabang/{id_cabang}', 'Transaksi\OrderPaketController@paketCabang');
     // Jadwal
     Route::get('info/jadwal/{id}', 'Admin\JadwalController@getInfo');
+    // Booking
+    Route::post('tambah/booking', 'Transaksi\BookingController@addBooking');
+    Route::get('info/booking', 'Transaksi\BookingController@historyBooking');
     // Data Paket
     Route::get('info/paket', 'Admin\PaketController@getInfo');
 });
