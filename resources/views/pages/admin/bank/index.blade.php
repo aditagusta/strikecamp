@@ -8,9 +8,9 @@
 <div class="row mt-3">
     <div class="col-sm-12 col-md-12">
         <button class="btn btn-sm btn-primary" onclick="tambah()"><i class="fa fa-plus"></i> Bank</button>
-        <table id="table" class="table table-striped table-bordered table-responsive" style="width:100%; font-size:9px">
+        <table id="table" class="table table-striped table-bordered table-responsive" style="width:100%;">
             <thead>
-                <tr style="text-align: center; font-size:10px">
+                <tr style="text-align: center;">
                     <th style="width: 2%;">No</th>
                     <th>Nama Bank</th>
                     <th>Rekening</th>

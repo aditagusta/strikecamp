@@ -25,7 +25,7 @@ Route::delete('cabang/{id}', 'Admin\CabangController@remove');
 
 // Data User
 Route::post('user', 'Admin\UserController@add');
-Route::post('member', 'Admin\UserController@addmember');
+// Route::post('member', 'Admin\UserController@addmember');
 Route::get('user/datatable', 'Admin\UserController@datatable');
 Route::get('user/{id}', 'Admin\UserController@get');
 Route::put('user', 'Admin\UserController@edit');
@@ -55,9 +55,14 @@ Route::delete('trainer/{id}', 'Admin\TrainerController@remove');
 Route::post('schedule', "Admin\JadwalController@getjam");
 
 // Data Member
+//
+Route::get('member/datatables', 'Admin\MemberController@datatables');
+Route::post('members', 'Admin\MemberController@adds');
+//
 Route::post('member', 'Admin\MemberController@add');
 Route::get('member/datatable/{id}', 'Admin\MemberController@datatable');
 Route::get('member/{id}', 'Admin\MemberController@get');
+Route::get('member/detail/{id}', 'Admin\MemberController@detail');
 Route::delete('member/{id}', 'Admin\MemberController@remove');
 
 // Order Paket

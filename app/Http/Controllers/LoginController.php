@@ -15,7 +15,7 @@ class LoginController extends Controller
         return view('pages.login');
     }
 
-    function login2(Request $request){
+    public function login2(Request $request){
         $this->validate($request, [
             'username' => 'required|regex:/(^[A-Za-z0-9 ]+$)+/',
             'password' => 'required|regex:/(^[A-Za-z0-9 ]+$)+/',
@@ -33,7 +33,7 @@ class LoginController extends Controller
         }
     }
 
-    function logout2(){
+    public function logout2(){
         Auth::guard('pusat')->logout();
         return redirect('/login');
     }

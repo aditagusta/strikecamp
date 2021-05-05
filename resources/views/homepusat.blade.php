@@ -65,7 +65,7 @@
     </div>
 </div> -->
 
-<div class="row">
+{{-- <div class="row">
     <div class="col-md-3 col-sm-6 ">
         <div class="x_panel fixed_height_100">
             <div class="x_title">
@@ -79,15 +79,12 @@
                 </div>
                 <div class="col-sm-7">
                     <h5>Hello Pusat</h5>
-                    {{-- <h5>{{session()->get('id')}}</h5>
-                    <h5>{{session()->get('cabang')}}</h5>
-                    <h5>{{session()->get('nama')}}</h5> --}}
                 </div>
                 </div>
 
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 <!-- /page content -->
 @endsection

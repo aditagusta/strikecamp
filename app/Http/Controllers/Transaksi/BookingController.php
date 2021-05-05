@@ -93,13 +93,22 @@ class BookingController extends Controller
                 ->select('sisa_paket','tanggal_beli')
                 ->orderBy('tanggal_beli', 'desc')
                 ->first();
+
+            $cekbooking = DB::table('tbl_booking')
+                ->where('id_member',$id_member)
+                ->where('id_jadwal',$id_jadwal)
+                ->first();
             $exp = date('Y-m-d', strtotime('+30 days', strtotime($cekmember->tanggal_beli)));
 
-            if($cekmember->sisa_paket < $hitung && $today > $exp)
+            if($cekmember->sisa_paket < $hitung || $today > $exp)
             {
-                return redirect("/booking")->with(['error', 'Paket Anda Tidak Cukup']);
+                return redirect("/booking")->with('error', 'Paket Anda Tidak Cukup');
             } else {
-                if ($id_jam != null) {
+                if($cekbooking == TRUE)
+                {
+                    return redirect("/booking")->with('error', 'Anda Sudah Memiliki Latihan');
+                } else {
+                    if ($id_jam != null) {
                         $simpan = DB::table('tbl_booking')
                         ->insert([
                             'id_user' => $user,
@@ -109,23 +118,22 @@ class BookingController extends Controller
                             'id_cabang' => $cabang
                         ]);
 
-                    if($simpan == true)
-                    {
-                        // kurangkan sisa paket
-                        $kurang = $cekmember->sisa_paket - $hitung;
-                        // update table paket_member
-                        $member = DB::table('paket_member')
-                            ->where('id_cabang', $cabang)
-                            ->where('id_member', $id_member)
-                            ->select('sisa_paket','tanggal_beli')
-                            ->orderBy('tanggal_beli', 'desc')
-                            ->update(['sisa_paket' => $kurang]);
+                        if($simpan == true)
+                        {
+                            // kurangkan sisa paket
+                            $kurang = $cekmember->sisa_paket - $hitung;
+                            // update table paket_member
+                            $member = DB::table('paket_member')
+                                ->where('id_cabang', $cabang)
+                                ->where('id_member', $id_member)
+                                ->select('sisa_paket','tanggal_beli')
+                                ->orderBy('tanggal_beli', 'desc')
+                                ->update(['sisa_paket' => $kurang]);
+                        }
+                        return redirect("/booking")->with('status', 'Berhasil Menambahkan Booking Member');
+                    } else {
+                        return redirect("/booking")->with('error', 'Cek Kembali Inputan Anda');
                     }
-                    // Session::flash('success','Ini notifikasi SUKSES');
-                    return redirect("/booking");
-                } else {
-                    // Session::flash('success','Ini notifikasi SUKSES');
-                    return redirect("/booking");
                 }
             }
         }
@@ -220,6 +228,8 @@ class BookingController extends Controller
         echo json_encode($data);
     }
 
+    
+
     // Api Android
     public function addBooking(Request $request)
     {
@@ -241,7 +251,7 @@ class BookingController extends Controller
                 ->first();
             $exp = date('Y-m-d', strtotime('+30 days', strtotime($cekmember->tanggal_beli)));
 
-            if($cekmember->sisa_paket < $hitung && $today > $exp)
+            if($cekmember->sisa_paket < $hitung || $today > $exp)
             {
                 return response()->json(['status' => 400, 'message' => 'Paket Atau Masa Berlaku Sudah Habis']);
             } else {

@@ -15,6 +15,7 @@
                     <th style="20%">Nama Member</th>
                     <th style="20%">Telepon</th>
                     <th style="38%">Foto Member</th>
+                    <th style="20%">Cabang</th>
                     <th style="20%">Aksi</th>
                 </tr>
             </thead>
@@ -50,6 +51,12 @@
             <input type="text" class="form-control" id="nama_member" name="nama_member">
             <label for="">Telepon</label>
             <input type="text" class="form-control" id="telepon" name="telepon">
+            <label for="">Pilih Cabang</label>
+            <select name="id_cabang" id="id_cabang" class="form-control">
+                @foreach ($cabang as $item)
+                <option value="{{$item->id_cabang}}">{{$item->nama_cabang}}</option>
+                @endforeach
+            </select>
             <label for="">Foto</label>
             <input type="file" class="form-control" id="gambar_member" name="gambar_member">
           </form>
@@ -72,7 +79,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <form action="{{route('editmember')}}" method="POST" enctype="multipart/form-data">
+          <form action="{{route('editmembers')}}" method="POST" enctype="multipart/form-data">
             @method('PUT')
             @csrf
             <label for="">Username</label>
@@ -86,6 +93,12 @@
             <input type="text" class="form-control" id="nama_member_" name="nama_member">
             <label for="">Telepon</label>
             <input type="text" class="form-control" id="telepon_" name="telepon">
+            <label for="">Pilih Cabang</label>
+            <select name="id_cabang" id="id_cabang_" class="form-control">
+                @foreach ($cabang as $item)
+                <option value="{{$item->id_cabang}}">{{$item->nama_cabang}}</option>
+                @endforeach
+            </select>
             <label for="">Foto</label>
             <input type="file" class="form-control"  name="gambar_">
             <br>
@@ -130,12 +143,12 @@
 
 <script>
     $(document).ready(function(){
-        var id = '{{Auth::guard('pusat')->user()->id_cabang}}'
+        // var id = '{{Auth::guard('pusat')->user()->id_cabang}}'
       tables = $('#table').DataTable({
         processing : true,
         serverSide : true,
         ajax:{
-          url: "{{ url('/api/member/datatable') }}/"+id,
+          url: "{{ url('/api/member/datatables') }}/",
         },
         columns:[
         {
@@ -155,6 +168,9 @@
                         return "<img src=\"/images/" + data + "\" height=\"150px\" width=\"200\"/>";
                     }
                 },
+        {
+        data:'nama_cabang'
+        },
         {
         data: null,
         render: function(data, type, row, meta) {
@@ -184,7 +200,7 @@
         var password1 = $('#password1').val();
         var nama_member = $('#nama_member').val();
         var telepon = $('#telepon').val();
-        var id_cabang = {{ Auth::guard('pusat')->user()->id_cabang }}
+        var id_cabang = $('#id_cabang').val();
 
         // Tambahkan data video ke Form Data
         data.append('gambar_member', dataFile);
@@ -197,7 +213,7 @@
         console.log(data);
 
         // Kirim,
-        axios.post('api/member', data)
+        axios.post('api/members', data)
             .then(function (res) {
                 var data = res.data
                 console.log(data.message);
@@ -224,6 +240,7 @@
             $('#password1_').val(isi.data.password1);
             $('#nama_member_').val(isi.data.nama_member);
             $('#telepon_').val(isi.data.telepon);
+            $('#id_cabang_').val(isi.data.id_cabang);
             $('#editModal').modal('show');
         })
     }
@@ -241,32 +258,6 @@
             $('#detailModal').modal('show');
         })
     }
-
-    // $('#update').click(function (e) {
-    //     e.preventDefault();
-    //     var id_member = $('#id_member').val();
-    //     var username = $('#username').val();
-    //     var password = $('#password').val();
-    //     var password1 = $('#password1').val();
-    //     var nama_member = $('#nama_member').val();
-    //     var telepon = $('#telepon').val();
-    //     var cabang = '{{session()->get('cabang')}}';
-    //     axios.put("{{url('/api/member')}}", {
-    //         'id_member': id_member,
-    //         'username': username,
-    //         'password': password,
-    //         'password1': password1,
-    //         'nama_member': nama_member,
-    //         'telepon': telepon,
-    //         'id_cabang': cabang,
-    //     }).then(function (res) {
-    //         var data = res.data
-    //         toastr.info(data.message)
-    //         $('#addModal').modal('hide')
-    //         tables.ajax.reload()
-    //         bersih()
-    //     })
-    // });
 
     function deleted(id)
     {

@@ -142,6 +142,8 @@ class CabangController extends Controller
     {
         try {
             $data = Cabang::findOrFail($id);
+            $destinationPath = 'images';
+            File::delete($destinationPath . '/' . $data->gambar_cabang);
             $data->delete();
             return response()->json(['message' => 'Data Berhasil Di Hapus', 'status' => 200]);
         } catch (ModelNotFoundException $e) {

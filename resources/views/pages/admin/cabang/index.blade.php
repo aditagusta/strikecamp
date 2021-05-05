@@ -121,7 +121,7 @@
                 },
                 { data: 'gambar_cabang',
                     render: function( data, type, full, meta ) {
-                        return "<img src=\"/images/" + data + "\" height=\"100px\" width=\"100%\"/>";
+                        return "<img src=\"/images/" + data + "\" height=\"150px\" width=\"200px\"/>";
                     }
                 },
                 {

@@ -1,6 +1,6 @@
       <footer>
         <div class="pull-right">
-          Gentelella - Bootstrap Admin Template by <a href="https://colorlib.com">Colorlib</a>
+          <img src="{{asset('logo/Strike TC Polos Black 2020.png')}}" style="width: 200px;height:100px" alt="">
         </div>
         <div class="clearfix"></div>
       </footer>

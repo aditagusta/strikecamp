@@ -48,7 +48,7 @@
                 <input type="password" class="form-control" placeholder="Password"  id="password" name="password">
               </div>
               <div>
-                <button class="btn btn-success btn-sm" type="submit" id="login">Log In</button>
+                <button class="btn btn-danger" style="width: 100%" type="submit" id="login">Log In</button>
               </div>
 
               <div class="clearfix"></div>

@@ -66,9 +66,11 @@ Route::group(['middleware' => 'auth:pusat','cekstatus:1,2'], function () {
     Route::put('/jadwal', 'Admin\JadwalController@edit')->name('editjadwal');
     Route::delete('/jadwal/{id?}', 'Admin\JadwalController@remove')->name('removejadwal');
 
-    // Data Bank
+    // Data Member
     Route::get('/member', 'Admin\MemberController@index')->name('member');
+    Route::get('/members', 'Admin\MemberController@index_pusat')->name('members');
     Route::put('/member/edit', 'Admin\MemberController@edit')->name('editmember');
+    Route::put('/members/edit', 'Admin\MemberController@edits')->name('editmembers');
 
     // Data Order Paket
     Route::get('/order', 'Transaksi\OrderPaketController@index')->name('order_paket');

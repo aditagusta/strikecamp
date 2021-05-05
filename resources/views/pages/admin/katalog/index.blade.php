@@ -8,9 +8,9 @@
 <div class="row mt-3">
     <div class="col-sm-12 col-md-12">
         <button class="btn btn-sm btn-primary" onclick="tambah()"><i class="fa fa-plus"></i> Katalog</button>
-        <table id="table" class="table table-striped table-bordered table-responsive" style="width:100%; font-size:9px">
+        <table id="table" class="table table-striped table-bordered table-responsive" style="width:100%;">
             <thead>
-                <tr style="text-align: center; font-size:10px">
+                <tr style="text-align: center;">
                     <th style="width: 2%;">No</th>
                     <th style="10%">Nama </th>
                     <th style="20%">Deskripsi </th>
@@ -77,7 +77,7 @@
         },
         { data: 'foto',
                 render: function( data, type, full, meta ) {
-                    return "<img src=\"/images/" + data + "\" height=\"100%\" width=\"100%\"/>";
+                    return "<img src=\"/images/" + data + "\" height=\"150px\" width=\"200px\"/>";
                 }
         },
         {
