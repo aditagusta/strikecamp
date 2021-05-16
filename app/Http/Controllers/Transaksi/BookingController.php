@@ -21,26 +21,21 @@ class BookingController extends Controller
         $this->website = array(
             'tanggal' => 'required',
             'member' => 'required',
-            'jam' => 'required',
+            'jam_' => 'required',
         );
     }
 
     public function index()
     {
         $today = date('Y-m-d');
-        $data['jadwal'] = DB::table('tbl_jadwal')
-            ->join('tbl_trainer', 'tbl_jadwal.id_trainer', 'tbl_trainer.id_trainer')
-            ->where('tbl_jadwal.id_cabang', Auth::guard('pusat')->user()->id_cabang)
-            ->get();
+        $data['jadwal'] = DB::table('tbl_jadwal')->get();
         $data['member'] = DB::table('tbl_order')
             ->join('tbl_member', 'tbl_order.id_member', 'tbl_member.id_member')
-            // ->join('paket_member', 'tbl_member.id_member','paket_member.id_member')
             ->select('tbl_order.*','tbl_member.nama_member')
-            // ->where('paket_member.sisa_paket', '!=' , '')
             ->where('tbl_order.tanggal_exp', '>', $today)
             ->where('tbl_order.id_cabang',Auth::guard('pusat')->user()->id_cabang)
             ->get();
-            // dd($data['member']);
+
         $booking = DB::table('tbl_booking')
             ->join('tbl_jadwal','tbl_booking.id_jadwal','tbl_jadwal.id_jadwal')
             ->join('tbl_member','tbl_booking.id_member','tbl_member.id_member')
@@ -79,8 +74,9 @@ class BookingController extends Controller
             return redirect("/booking");
         } else {
             $id_jadwal = $req->tanggal;
-            $id_jam = $req->jam;
+            $id_jam = $req->jam_;
             $id_member = $req->member;
+            $id_trainer = $req->id_trainer;
             $hitung = count($id_jam);
             $jams = implode(",",$id_jam);
             $user = Auth::guard('pusat')->user()->id_user;
@@ -93,7 +89,6 @@ class BookingController extends Controller
                 ->select('sisa_paket','tanggal_beli')
                 ->orderBy('tanggal_beli', 'desc')
                 ->first();
-
             $cekbooking = DB::table('tbl_booking')
                 ->where('id_member',$id_member)
                 ->where('id_jadwal',$id_jadwal)
@@ -114,6 +109,7 @@ class BookingController extends Controller
                             'id_user' => $user,
                             'id_member' => $id_member,
                             'id_jadwal' => $id_jadwal,
+                            'id_trainer' => $id_trainer,
                             'id_jam' => $jams,
                             'id_cabang' => $cabang
                         ]);
@@ -126,9 +122,10 @@ class BookingController extends Controller
                             $member = DB::table('paket_member')
                                 ->where('id_cabang', $cabang)
                                 ->where('id_member', $id_member)
-                                ->select('sisa_paket','tanggal_beli')
+                                ->select('*')
                                 ->orderBy('tanggal_beli', 'desc')
-                                ->update(['sisa_paket' => $kurang]);
+                                ->first();
+                            $updatepaket = DB::table('paket_member')->whereIdPaketMember($member->id_paket_member)->update(['sisa_paket' => $kurang]);
                         }
                         return redirect("/booking")->with('status', 'Berhasil Menambahkan Booking Member');
                     } else {
@@ -165,30 +162,32 @@ class BookingController extends Controller
         return view('pages.transaksi.booking.agenda', $data);
     }
 
-    public function cekjam(Request $req)
+    public function cektrainer(Request $req)
     {
-        // $data = DB::table('tbl_booking')
-        //     ->select('id_jam')
-        //     ->where('id_jadwal', $req->id_jadwal)
-        //     ->get();
-        //     // dd($data);
-        // if (count($data) > 0) {
-        //     echo json_encode($data);
-        // } else {
-        //     $data = '';
-        //     echo json_encode($data);
-        // }
-
-        $data = DB::table('tbl_jadwal')
-            ->select('id_jam')
+        $data = DB::table('jadwal_trainer')
+            ->join('tbl_trainer','jadwal_trainer.id_trainer','tbl_trainer.id_trainer')
             ->where('id_jadwal', $req->id_jadwal)
             ->get();
-            // dd($data);
         if (count($data) > 0) {
             echo json_encode($data);
         } else {
             $data = '';
             echo json_encode($data);
+        }
+    }
+
+    public function cekjam(Request $request)
+    {
+        // dd($request->all());
+        $data = DB::table('jadwal_jam')
+            ->join('tbl_jam','jadwal_jam.id_jam','tbl_jam.id_jam')
+            ->where('jadwal_jam.id_jadwal',$request["id_jadwal"])
+            ->where('jadwal_jam.id_trainer',$request["id_trainer"])
+            ->get();
+        if($data == null){
+            return response()->json(['status' => 404, 'message' => 'Data Tidak Ditemukan']);
+        } else {
+            return response()->json(['status' => 200, 'data' => $data, 'message' => 'Data Ditemukan']);
         }
     }
 
@@ -204,18 +203,19 @@ class BookingController extends Controller
             $member = DB::table('paket_member')
                 ->where('id_member', $data->id_member)
                 ->where('id_cabang', $data->id_cabang)
+                ->select('*')
+                ->orderBy('tanggal_beli', 'desc')
                 ->first();
-
-            // tambahkah
+                // tambahkah
             $tambah = $member->sisa_paket + $nilai;
-
             // update data member
-            DB::table('paket_member')
-            ->where('id_member', $data->id_member)
-            ->where('id_cabang', $data->id_cabang)
-            ->update([
-                'sisa_paket' => $tambah
-            ]);
+            // DB::table('paket_member')
+            // ->where('id_member', $data->id_member)
+            // ->where('id_cabang', $data->id_cabang)
+            // ->update([
+            //     'sisa_paket' => $tambah
+            // ]);
+            $updatepaket = DB::table('paket_member')->whereIdPaketMember($member->id_paket_member)->update(['sisa_paket' => $tambah]);
             return redirect()->back()->with('status', 'Berhasil Dihapus');
         } else {
             return redirect()->back()->with('error', 'Data Gagal Dihapus');
@@ -224,11 +224,9 @@ class BookingController extends Controller
 
     public function cekpaket($id)
     {
-        $data = DB::table('paket_member')->where('id_member', $id)->orderBy('tanggal_beli', 'desc')->first();
+        $data = DB::table('paket_member')->where('id_member', $id)->where('id_cabang',Auth::guard('pusat')->user()->id_cabang)->orderBy('tanggal_beli', 'desc')->first();
         echo json_encode($data);
     }
-
-    
 
     // Api Android
     public function addBooking(Request $request)
@@ -274,11 +272,12 @@ class BookingController extends Controller
                             ->first();
                         // update table paket_member
                         $member = DB::table('paket_member')
-                            ->where('id_cabang', $request->id_cabang)
-                            ->where('id_member', $id_member)
-                            ->select('sisa_paket','tanggal_beli')
-                            ->orderBy('tanggal_beli', 'desc')
-                            ->update(['sisa_paket' => $kurang]);
+                                ->where('id_cabang', $cabang)
+                                ->where('id_member', $id_member)
+                                ->select('*')
+                                ->orderBy('tanggal_beli', 'desc')
+                                ->first();
+                        $updatepaket = DB::table('paket_member')->whereIdPaketMember($member->id_paket_member)->update(['sisa_paket' => $kurang]);
                     }
                     return response()->json(['status' => 200, 'message' => 'Booking Berhasil Dilakukan' , 'data' => $datamember,'sisa_paket' => $kurang]);
                 } else {
@@ -292,18 +291,18 @@ class BookingController extends Controller
     public function historyBooking()
     {
         $data = DB::table('tbl_booking')
-        ->leftJoin('tbl_jadwal','tbl_booking.id_jadwal','tbl_jadwal.id_jadwal')
-        ->leftJoin('tbl_cabang','tbl_booking.id_cabang','tbl_cabang.id_cabang')
-        ->leftJoin('tbl_trainer', 'tbl_jadwal.id_trainer','tbl_trainer.id_trainer')
-        ->select('tbl_booking.*','tbl_jadwal.jadwal','tbl_trainer.nama_trainer','tbl_cabang.nama_cabang','tbl_cabang.lokasi')
+        ->join('tbl_jadwal','tbl_booking.id_jadwal','tbl_jadwal.id_jadwal')
+        ->join('tbl_cabang','tbl_booking.id_cabang','tbl_cabang.id_cabang')
+        ->join('tbl_trainer','tbl_booking.id_trainer','tbl_trainer.id_trainer')
+        ->select('tbl_booking.*','tbl_jadwal.jadwal','tbl_cabang.nama_cabang','tbl_cabang.lokasi','tbl_trainer.nama_trainer')
         ->get();
         $history = [];
         foreach ($data as $key => $a) {
             $ambilpaket = explode(",",$a->id_jam);
             $id_jam = count($ambilpaket);
-            foreach ($ambilpaket as $i => $b) {
-                $datajam = DB::table('tbl_jam')->where('id_jam', $b)->first();
-                $jams [] = $datajam->jam;
+            foreach ($ambilpaket as $b) {
+                $datajam = DB::table('tbl_jam')->where('id_jam', $b)->select('jam')->first();
+                $jams[] = $datajam->jam;
             }
             array_push($history,[
                 'jadwal' => $a->jadwal,

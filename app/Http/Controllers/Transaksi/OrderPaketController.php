@@ -252,13 +252,35 @@ class OrderPaketController extends Controller
         }
     }
 
+    // public function paketCabang(Request $request, $id_cabang)
+    // {
+    //     $id = Auth::guard('member')->user()->id_member;
+    //     $id_cabang = $request->id_cabang;
+    //     $today = date('Y-m-d');
+    //     try {
+    //         $data = DB::table('tbl_order')
+    //             ->join('tbl_paket','tbl_order.jumlah_paket','tbl_paket.id_paket')
+    //             ->join('tbl_cabang', 'tbl_order.id_cabang','tbl_cabang.id_cabang')
+    //             ->select('tbl_order.*','tbl_paket.nama_paket','tbl_paket.harga','tbl_cabang.nama_cabang')
+    //             ->where('tbl_order.id_member', $id)
+    //             ->where('tbl_order.id_cabang', $id_cabang)
+    //             ->where('tbl_order.status' , 1)
+    //             ->where('tbl_order.tanggal_exp', '>' , $today)
+    //             ->get();
+    //         return response()->json(['data' => $data, 'status' => 200]);
+    //     } catch (ModelNotFoundException $e) {
+    //         return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
+    //     }
+    // }
+
     public function paketCabang(Request $request, $id_cabang)
     {
         $id = Auth::guard('member')->user()->id_member;
         $id_cabang = $request->id_cabang;
+        $data = [];
         $today = date('Y-m-d');
         try {
-            $data = DB::table('tbl_order')
+            $paket = DB::table('tbl_order')
                 ->join('tbl_paket','tbl_order.jumlah_paket','tbl_paket.id_paket')
                 ->join('tbl_cabang', 'tbl_order.id_cabang','tbl_cabang.id_cabang')
                 ->select('tbl_order.*','tbl_paket.nama_paket','tbl_paket.harga','tbl_cabang.nama_cabang')
@@ -267,6 +289,26 @@ class OrderPaketController extends Controller
                 ->where('tbl_order.status' , 1)
                 ->where('tbl_order.tanggal_exp', '>' , $today)
                 ->get();
+                foreach ($paket as $key => $a)
+                {
+                    $paket_member = DB::table('paket_member')
+                        ->where('id_member',Auth::guard('member')->user()->id_member)
+                        ->where('tanggal_beli',$a->tanggal_order)
+                        ->get();
+                    array_push($data,[
+                        'id_order' => $a->id_order,
+                        'id_user' => $a->id_user,
+                        'id_member' => $a->id_member,
+                        'jumlah_paket' => $a->jumlah_paket,
+                        'tanggal_order' => $a->tanggal_order,
+                        'tanggal_exp' => $a->tanggal_exp,
+                        'id_cabang' => $a->id_cabang,
+                        'nama_paket' => $a->nama_paket,
+                        'harga' => $a->harga,
+                        'nama_cabang' => $a->nama_cabang,
+                        'sisa_paket' => $paket_member[$key]->sisa_paket,
+                    ]);
+                }
             return response()->json(['data' => $data, 'status' => 200]);
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);

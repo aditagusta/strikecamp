@@ -130,4 +130,31 @@ class TrainerController extends Controller
             return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
         }
     }
+
+    public function jadwal(){
+        $data = DB::table('tbl_jadwal')->get();
+    }
+
+    // Api Android
+    public function getInfo()
+    {
+        $data = DB::table('tbl_trainer')->get();
+        if($data == TRUE)
+        {
+            return response()->json(['message' => 'Data Ditemukan', 'status' => 200,'data' => $data]);
+        } else {
+            return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
+        }
+    }
+
+    public function getDetailTrainer(Request $request,$id)
+    {
+        $data = DB::table('tbl_trainer')->where('id_trainer',$id)->first();
+        if($data == TRUE)
+        {
+            return response()->json(['message' => 'Data Ditemukan', 'status' => 200,'data' => $data]);
+        } else {
+            return response()->json(['message' => 'Data Tidak Ditemukan', 'status' => 404]);
+        }
+    }
 }

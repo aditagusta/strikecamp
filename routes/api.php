@@ -49,10 +49,23 @@ Route::delete('bank/{id}', 'Admin\BankController@remove');
 Route::post('trainer', 'Admin\TrainerController@add');
 Route::get('trainer/datatable/{id}', 'Admin\TrainerController@datatable');
 Route::get('trainer/{id}', 'Admin\TrainerController@get');
+Route::get('data/trainer', 'Admin\TrainerController@getInfo');
 Route::delete('trainer/{id}', 'Admin\TrainerController@remove');
+Route::get('detail/trainer/{id}', 'Admin\TrainerController@getDetailTrainer');
 
 // Data Jadwal
-Route::post('schedule', "Admin\JadwalController@getjam");
+Route::post('jadwal', "Admin\JadwalController@getjadwal");
+Route::post('tambah/jadwal', "Admin\JadwalController@add");
+Route::put('jadwal', 'Admin\JadwalController@edit');
+Route::post('tambah/trainer', "Admin\JadwalController@addTrainer");
+Route::post('tambah/jam', "Admin\JadwalController@addJam");
+Route::delete('jadwal/{id}', 'Admin\JadwalController@remove');
+Route::delete('jadwal/trainer/{id}', 'Admin\JadwalController@removeTrainer');
+Route::post('cek/trainer', 'Admin\JadwalController@cekTrainer');
+Route::put('edit/trainer', 'Admin\JadwalController@editTrainer');
+Route::get('data/jam', 'Admin\JadwalController@getDataJam');
+Route::get('agenda/trainer/{idj}/{idt}', 'Admin\JadwalController@getJam');
+Route::get('detail/jam/{id}', 'Admin\JadwalController@getDetailJam');
 
 // Data Member
 //
@@ -73,7 +86,8 @@ Route::delete('order/{id}', 'Transaksi\OrderPaketController@remove');
 Route::get('pakets/{id}', 'Transaksi\OrderPaketController@pakets');
 
 // Booking
-Route::post('cekjam', 'Transaksi\BookingController@cekjam');
+Route::post('cek/trainer', 'Transaksi\BookingController@cektrainer');
+Route::post('cek/jam', 'Transaksi\BookingController@cekjam');
 Route::get('cekpaket/{id}', 'Transaksi\BookingController@cekpaket');
 
 // Approve Order
@@ -104,6 +118,7 @@ Route::group(["middleware" => "auth:member"], function() {
     Route::get('info/paket/cabang/{id_cabang}', 'Transaksi\OrderPaketController@paketCabang');
     // Jadwal
     Route::get('info/jadwal/{id}', 'Admin\JadwalController@getInfo');
+    Route::get('daftar/jam/{id}', 'Admin\JadwalController@listJadwal');
     // Booking
     Route::post('tambah/booking', 'Transaksi\BookingController@addBooking');
     Route::get('info/booking', 'Transaksi\BookingController@historyBooking');

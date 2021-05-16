@@ -62,9 +62,7 @@ Route::group(['middleware' => 'auth:pusat','cekstatus:1,2'], function () {
 
     // Data Jadwal
     Route::get('/jadwal', 'Admin\JadwalController@index')->name('jadwal');
-    Route::post('/jadwal', 'Admin\JadwalController@add')->name('addjadwal');
-    Route::put('/jadwal', 'Admin\JadwalController@edit')->name('editjadwal');
-    Route::delete('/jadwal/{id?}', 'Admin\JadwalController@remove')->name('removejadwal');
+    Route::get('/table/jadwal', 'Admin\JadwalController@table')->name('tablejadwal');
 
     // Data Member
     Route::get('/member', 'Admin\MemberController@index')->name('member');
@@ -85,4 +83,10 @@ Route::group(['middleware' => 'auth:pusat','cekstatus:1,2'], function () {
     // Approve Order
     Route::get('/approve', 'Transaksi\ApproveController@index_order')->name('approve_order');
     Route::get('/approve/table/order', 'Transaksi\ApproveController@table_order')->name('table_order_approve');
+});
+
+Route::get('test', function(){
+    $jadwal = \App\Model\Jadwal::find(92);
+
+    return $jadwal->trainers->first()->jam;
 });
