@@ -35,9 +35,9 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group" id="data_trainer">
+                                {{-- <div class="form-group" id="data_trainer">
                                     <label for="">Pilih Trainer</label>
-                                </div>
+                                </div> --}}
                                 <div class="row">
                                     <div class="col-sm-12 col-md-6">
                                         <div class="form-group">
@@ -59,9 +59,8 @@
                                 </div>
                                 <button class="btn btn-sm btn-success" type="submit">Simpan</button>
                             </div>
-                            <div class="col-sm-12 col-md-6">
-                                <div class="row" id="data_jam">
-                                </div>
+                            <div class="col-sm-12 col-md-6" id="agenda">
+                                {{-- <div class="row" id="data_jam"> --}}
                             </div>
                         </div>
                     </form>
@@ -84,16 +83,9 @@
                     <td>{{$no+1}}</td>
                     <td>{{$bk['nama_member']}}</td>
                     <td>
-                        {{-- @php
-                            $tes = explode(",",$bk->id_jam);
-                        @endphp
-                        @foreach ($tes as $b)
-                            @php
-                                $datass = DB::table('tbl_jam')->where('id_jam', $b)->first();
-                                echo  "-".$datass->jam;
-                            @endphp
-                        @endforeach --}}
-                        {{$bk['jam']}}
+                        @foreach ($bk['jam'] as $j)
+                        <li>{{$j}}</li>
+                        @endforeach
                     </td>
                     <td>{{tanggal_indonesia($bk['jadwal'])}}</td>
                     <td>
@@ -114,42 +106,44 @@
     </div>
 </div>
 <script>
-    function hari()
-    {
-        var id = $('#tanggal').val()
-        $('#agenda').load("{{route('tableagenda')}}/" + id)
-        axios.post("{{url('/api/cek/trainer')}}",{
-            'id_jadwal':id
-        }).then(function(res){
-            var cek = res.data;
-            return cek;
+    // function hari()
+    // {
+    //     var id = $('#tanggal').val()
+    //     $('#agenda').load("{{route('tableagenda')}}/" + id)
+    //     axios.post("{{url('/api/cek/trainer')}}",{
+    //         'id_jadwal':id
+    //     }).then(function(res){
+    //         var cek = res.data;
+    //         return cek;
+    //         console.log(cek);
+    //         if(cek == '')
+    //         {
+    //             var tes = ''
+    //         }else{
+    //             var tes = cek.id_jam.split(",")
+    //         }
+    //         console.log(tes);
 
-
-
-            // console.log(cek);
-    //         // if(cek == '')
-    //         // {
-    //         //     var tes = ''
-    //         // }else{
-    //         //     var tes = cek.id_jam.split(",")
-    //         // }
-    //         // console.log(tes);
-
-    //         // if(tes != '')
-    //         // {
-    //         //     for(var i = 0; i < tes.length; i++){
-    //         //         document.getElementById(tes[i]).checked = true;
-    //         //         document.getElementById(tes[i]).disabled = true;
-    //         //     }
-    //         // } else {
+    //         if(tes != '')
+    //         {
+    //             for(var i = 0; i < tes.length; i++){
+    //                 document.getElementById(tes[i]).checked = true;
+    //                 document.getElementById(tes[i]).disabled = true;
+    //             }
+    //         } else {
     //             var list_jam = document.getElementsByName("jam[]");
     //             // reset centang jam
     //             for (var x = 0; x < list_jam.length; x++) {
     //                 list_jam[x].checked = false;
     //             }
-    //         // }
-        })
-    }
+    //         }
+    //     })
+    // }
+
+    $('#tanggal').change(function () {
+        var id = $('#tanggal').val()
+        $('#agenda').load("{{route('tableagenda')}}/" + id)
+    });
 
     function members()
     {
@@ -164,55 +158,52 @@
 
     $('#myTable').DataTable()
 
-    let tanggal = document.getElementById("tanggal");
-    tanggal.addEventListener("change", async (e) => {
-        let latihanValue = e.target.value;
-        let trainerValue = null;
-        // console.log(latihanValue);
-        let trainer = document.getElementById("data_trainer")
-        let select = document.createElement("select")
-        var id = $('#tanggal').val()
+    // let tanggal = document.getElementById("tanggal");
+    // tanggal.addEventListener("change", async (e) => {
+    //     let latihanValue = e.target.value;
+    //     let trainerValue = null;
+    //     let trainer = document.getElementById("data_trainer")
+    //     let select = document.createElement("select")
+    //     var id = $('#tanggal').val()
 
-        let data =  await axios.post("{{url('/api/cek/trainer')}}",{
-            'id_jadwal':id
-        })
+    //     let data =  await axios.post("{{url('/api/cek/trainer')}}",{
+    //         'id_jadwal':id
+    //     })
 
-        let trainerOption = document.getElementById("id_trainer")
-        trainerOption === null ? "" : trainerOption.remove()
+    //     let trainerOption = document.getElementById("id_trainer")
+    //     trainerOption === null ? "" : trainerOption.remove()
 
-        let dataTrainer = ""
-        dataTrainer += `<option value="">Silahkan Pilih</option>`
-        data.data.forEach(d => {
-            dataTrainer += `<option value="${d.id_trainer}">${d.nama_trainer}</option>`
-        });
+    //     let dataTrainer = ""
+    //     dataTrainer += `<option value="">Silahkan Pilih</option>`
+    //     data.data.forEach(d => {
+    //         dataTrainer += `<option value="${d.id_trainer}">${d.nama_trainer}</option>`
+    //     });
 
-        select.classList.add("form-control");
-        select.id = "id_trainer"
-        select.name = "id_trainer"
-        select.innerHTML = dataTrainer;
-        trainer.appendChild(select);
+    //     select.classList.add("form-control");
+    //     select.id = "id_trainer"
+    //     select.name = "id_trainer"
+    //     select.innerHTML = dataTrainer;
+    //     trainer.appendChild(select);
 
-        let trainer_option = document.getElementById("id_trainer");
-        trainer_option.addEventListener("change", async (e) => {
-            $('#data_jam').empty()
-            trainerValue = e.target.value
-            let response = await axios.post("api/cek/jam",{
-                id_jadwal:latihanValue,
-                id_trainer:trainerValue,
-            })
-                let dataJam = response.data.data
-                dataJam.forEach(function (pecah,index){
-                    console.log(index);
-                    // console.log(pecah.id_jam)
-                    // console.log(pecah.jam)
-                    let htmljam = `
-                    <div class="col-sm-2">
-                        <input type="checkbox" id="${pecah.id_jam}" value="${pecah.id_jam}" name="jam_[]">&nbsp;&nbsp;&nbsp;${pecah.jam}
-                    </div>
-                    `
-                    $('#data_jam').append(htmljam)
-                });
-        })
-    })
+    //     let trainer_option = document.getElementById("id_trainer");
+    //     trainer_option.addEventListener("change", async (e) => {
+    //         $('#data_jam').empty()
+    //         trainerValue = e.target.value
+    //         let response = await axios.post("api/cek/jam",{
+    //             id_jadwal:latihanValue,
+    //             id_trainer:trainerValue,
+    //         })
+    //             let dataJam = response.data.data
+    //             dataJam.forEach(function (pecah,index){
+    //                 console.log(index);
+    //                 let htmljam = `
+    //                 <div class="col-sm-2">
+    //                     <input type="checkbox" id="${pecah.id_jam}" value="${pecah.id_jam}" name="jam_[]">&nbsp;&nbsp;&nbsp;${pecah.jam}
+    //                 </div>
+    //                 `
+    //                 $('#data_jam').append(htmljam)
+    //             });
+    //     })
+    // })
 </script>
 @endsection

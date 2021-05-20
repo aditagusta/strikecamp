@@ -243,7 +243,7 @@ class OrderPaketController extends Controller
                         'nama_paket' => $a->nama_paket,
                         'harga' => $a->harga,
                         'nama_cabang' => $a->nama_cabang,
-                        'sisa_paket' => $paket_member[$key]->sisa_paket,
+                        'sisa_paket' => $paket_member[0]->sisa_paket,
                     ]);
                 }
             return response()->json(['data' => $data, 'status' => 200]);

@@ -43,7 +43,7 @@ class JadwalController extends Controller
     }
 
     public function table(){
-        $jadwal = DB::table('tbl_jadwal')->get();
+        $jadwal = DB::table('tbl_jadwal')->where('id_cabang',Auth::guard('pusat')->user()->id_cabang)->get();
 
         $data = [];
         $trainers = [];

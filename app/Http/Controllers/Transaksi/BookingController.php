@@ -21,14 +21,14 @@ class BookingController extends Controller
         $this->website = array(
             'tanggal' => 'required',
             'member' => 'required',
-            'jam_' => 'required',
+            'jam' => 'required',
         );
     }
 
     public function index()
     {
         $today = date('Y-m-d');
-        $data['jadwal'] = DB::table('tbl_jadwal')->get();
+        $data['jadwal'] = DB::table('tbl_jadwal')->where('id_cabang', Auth::guard('pusat')->user()->id_cabang)->get();
         $data['member'] = DB::table('tbl_order')
             ->join('tbl_member', 'tbl_order.id_member', 'tbl_member.id_member')
             ->select('tbl_order.*','tbl_member.nama_member')
@@ -47,8 +47,13 @@ class BookingController extends Controller
             foreach ($booking as $key => $a) {
                     $tes = explode(",",$a->id_jam);
                     foreach ($tes as $b) {
-                        $datajam = DB::table('tbl_jam')->where('id_jam', $b)->first();
-                        $jams [] = $datajam->jam;
+                        $datajam = DB::table('jadwal_jam')
+                            ->join('tbl_trainer','jadwal_jam.id_trainer','tbl_trainer.id_trainer')
+                            ->join('tbl_jam','jadwal_jam.id_jam','tbl_jam.id_jam')
+                            ->select('jadwal_jam.*','tbl_jam.jam','tbl_trainer.nama_trainer')
+                            ->where('jadwal_jam.id_jadwal_jam', $b)
+                            ->first();
+                        $jams [] = $datajam->jam."-".$datajam->nama_trainer;
                     }
                     array_push($data['booking'],[
                         'id_booking' => $a->id_booking,
@@ -56,7 +61,8 @@ class BookingController extends Controller
                         'id_member' => $a->id_member,
                         'id_jadwal' => $a->id_jadwal,
                         'id_jam' => $a->id_jam,
-                        'jam' => implode(",",$jams),
+                        // 'jam' => implode(",",$jams),
+                        'jam' => $jams,
                         'id_cabang' => $a->id_cabang,
                         'nama_member' => $a->nama_member,
                         'jadwal' => $a->jadwal,
@@ -74,9 +80,8 @@ class BookingController extends Controller
             return redirect("/booking");
         } else {
             $id_jadwal = $req->tanggal;
-            $id_jam = $req->jam_;
+            $id_jam = $req->jam;
             $id_member = $req->member;
-            $id_trainer = $req->id_trainer;
             $hitung = count($id_jam);
             $jams = implode(",",$id_jam);
             $user = Auth::guard('pusat')->user()->id_user;
@@ -94,7 +99,6 @@ class BookingController extends Controller
                 ->where('id_jadwal',$id_jadwal)
                 ->first();
             $exp = date('Y-m-d', strtotime('+30 days', strtotime($cekmember->tanggal_beli)));
-
             if($cekmember->sisa_paket < $hitung || $today > $exp)
             {
                 return redirect("/booking")->with('error', 'Paket Anda Tidak Cukup');
@@ -109,7 +113,7 @@ class BookingController extends Controller
                             'id_user' => $user,
                             'id_member' => $id_member,
                             'id_jadwal' => $id_jadwal,
-                            'id_trainer' => $id_trainer,
+                            // 'id_trainer' => $id_trainer,
                             'id_jam' => $jams,
                             'id_cabang' => $cabang
                         ]);
@@ -138,28 +142,31 @@ class BookingController extends Controller
 
     public function agenda(Request $req, $id)
     {
-        $agenda = DB::table('tbl_jadwal')
-            ->where('tbl_jadwal.id_jadwal', $id)
+        $agenda = DB::table('jadwal_jam')
+            ->join('tbl_trainer','jadwal_jam.id_trainer','tbl_trainer.id_trainer')
+            ->join('tbl_jam','jadwal_jam.id_jam','tbl_jam.id_jam')
+            ->select('jadwal_jam.*','tbl_trainer.nama_trainer','tbl_jam.jam')
+            ->where('jadwal_jam.id_jadwal', $id)
             ->get();
-            $data['agenda'] =[];
-            foreach ($agenda as $key => $a) {
-                $tes = explode(",",$a->id_jam);
-                // foreach ($tes as $b) {
-                //     $datajam = DB::table('tbl_jam')->where('id_jam', $b)->first();
-                //     $jams [] = $datajam->jam;
-                // }
-                array_push($data['agenda'],[
-                    'id_jadwal' => $a->id_jadwal,
-                    'id_user' => $a->id_user,
-                    'jadwal' => $a->jadwal,
-                    'id_cabang' => $a->id_cabang,
-                    'id_trainer' => $a->id_trainer,
-                    // 'jam' => implode(",",$jams),
-                    'id_jam' => $tes,
-                ]);
-                // $jams = [];
-            }
-        return view('pages.transaksi.booking.agenda', $data);
+            // $data['agenda'] =[];
+            // foreach ($agenda as $key => $a) {
+            //     $tes = explode(",",$a->id_jam);
+            //     // foreach ($tes as $b) {
+            //     //     $datajam = DB::table('tbl_jam')->where('id_jam', $b)->first();
+            //     //     $jams [] = $datajam->jam;
+            //     // }
+            //     array_push($data['agenda'],[
+            //         'id_jadwal' => $a->id_jadwal,
+            //         'id_user' => $a->id_user,
+            //         'jadwal' => $a->jadwal,
+            //         'id_cabang' => $a->id_cabang,
+            //         'id_trainer' => $a->id_trainer,
+            //         // 'jam' => implode(",",$jams),
+            //         'id_jam' => $tes,
+            //     ]);
+            //     // $jams = [];
+            // }
+        return view('pages.transaksi.booking.agenda', compact('agenda'));
     }
 
     public function cektrainer(Request $req)
@@ -293,24 +300,28 @@ class BookingController extends Controller
         $data = DB::table('tbl_booking')
         ->join('tbl_jadwal','tbl_booking.id_jadwal','tbl_jadwal.id_jadwal')
         ->join('tbl_cabang','tbl_booking.id_cabang','tbl_cabang.id_cabang')
-        ->join('tbl_trainer','tbl_booking.id_trainer','tbl_trainer.id_trainer')
-        ->select('tbl_booking.*','tbl_jadwal.jadwal','tbl_cabang.nama_cabang','tbl_cabang.lokasi','tbl_trainer.nama_trainer')
+        ->select('tbl_booking.*','tbl_jadwal.jadwal','tbl_cabang.nama_cabang','tbl_cabang.lokasi')
+        ->where('tbl_booking.id_member', Auth::guard('member')->user()->id_member)
         ->get();
         $history = [];
         foreach ($data as $key => $a) {
             $ambilpaket = explode(",",$a->id_jam);
             $id_jam = count($ambilpaket);
             foreach ($ambilpaket as $b) {
-                $datajam = DB::table('tbl_jam')->where('id_jam', $b)->select('jam')->first();
-                $jams[] = $datajam->jam;
+                $datajam = DB::table('jadwal_jam')
+                    ->join('tbl_trainer','jadwal_jam.id_trainer','tbl_trainer.id_trainer')
+                    ->join('tbl_jam','jadwal_jam.id_jam','tbl_jam.id_jam')
+                    ->select('jadwal_jam.*','tbl_jam.jam','tbl_trainer.nama_trainer')
+                    ->where('jadwal_jam.id_jadwal_jam', $b)
+                    ->first();
+                $jams [] = $datajam->jam."-".$datajam->nama_trainer;
             }
             array_push($history,[
                 'jadwal' => $a->jadwal,
                 'lokasi' => $a->lokasi,
                 'nama_cabang' => $a->nama_cabang,
                 'latihan' => $id_jam,
-                'jam' => implode(" ",$jams),
-                'nama_trainer' => $a->nama_trainer
+                'jam' => $jams,
             ]);
             $jams =[];
         }

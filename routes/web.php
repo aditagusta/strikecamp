@@ -85,8 +85,8 @@ Route::group(['middleware' => 'auth:pusat','cekstatus:1,2'], function () {
     Route::get('/approve/table/order', 'Transaksi\ApproveController@table_order')->name('table_order_approve');
 });
 
-Route::get('test', function(){
-    $jadwal = \App\Model\Jadwal::find(92);
+// Route::get('test', function(){
+//     $jadwal = \App\Model\Jadwal::find(92);
 
-    return $jadwal->trainers->first()->jam;
-});
+//     return $jadwal->trainers->first()->jam;
+// });
