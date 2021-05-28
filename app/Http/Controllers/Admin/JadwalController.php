@@ -226,6 +226,7 @@ class JadwalController extends Controller
                         'id_jadwal' => $r->id_jadwal,
                         'id_trainer' => $r->id_trainer,
                         'id_jam' => $a,
+                        'kapasitas' => 0
                     ]);
                 if($simpan == TRUE)
                 {
@@ -247,6 +248,8 @@ class JadwalController extends Controller
                         $kembali = $member->sisa_paket + $jumlah;
                         $updatepaket = DB::table('paket_member')->where('id_paket_member',$member->id_paket_member)->update(['sisa_paket' => $kembali]);
                     }
+                    // reset kapasitas
+                    $reset = DB::table('jadwal_jam')->where('id_jadwal',$r->id_jadwal)->update(['kapasitas' => 0]);
                 }
             }
         } else {
@@ -374,7 +377,7 @@ class JadwalController extends Controller
 
     public function listJadwal(Request $request,$id)
     {
-        $data = DB::table('jadwal_jam')->join('tbl_jadwal','jadwal_jam.id_jadwal','tbl_jadwal.id_jadwal')->where('tbl_jadwal.id_jadwal',$id)->get();
+        $data = DB::table('jadwal_jam')->join('tbl_jadwal','jadwal_jam.id_jadwal','tbl_jadwal.id_jadwal')->where('tbl_jadwal.id_jadwal',$id)->where('jadwal_jam.kapasitas','<','11')->get();
         if($data == TRUE)
         {
             return response()->json(['status' => 200,'message' => 'Data Ditemukan', 'data'=>$data]);

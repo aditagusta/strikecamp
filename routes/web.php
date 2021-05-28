@@ -49,6 +49,7 @@ Route::group(['middleware' => 'auth:pusat','cekstatus:1,2'], function () {
 
     // Laporan Order
     Route::get('/laporan/order', 'Report\ReportOrderController@index');
+    Route::post('/edit/tanggal', 'Report\ReportOrderController@update');
 
     // Data Bank
     Route::get('/bank', 'Admin\BankController@index')->name('bank');

@@ -48,7 +48,7 @@ class MemberController extends Controller
     public function datatables()
     {
         return datatables()->of(
-            DB::table('tbl_member')->join('tbl_cabang','tbl_member.id_cabang','tbl_cabang.id_cabang')->get()
+            DB::table('tbl_member')->join('tbl_cabang','tbl_member.id_cabang','tbl_cabang.id_cabang')->select('tbl_member.*','tbl_cabang.nama_cabang')->get()
         )->toJson();
     }
 

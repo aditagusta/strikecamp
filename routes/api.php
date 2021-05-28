@@ -84,6 +84,7 @@ Route::get('order/{id}', 'Transaksi\OrderPaketController@get');
 Route::put('order', 'Transaksi\OrderPaketController@edit');
 Route::delete('order/{id}', 'Transaksi\OrderPaketController@remove');
 Route::get('pakets/{id}', 'Transaksi\OrderPaketController@pakets');
+Route::post('edit/tanggal','Report\ReportOrderController@edit');
 
 // Booking
 Route::post('cek/trainer', 'Transaksi\BookingController@cektrainer');

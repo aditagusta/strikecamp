@@ -231,6 +231,7 @@ class OrderPaketController extends Controller
                     $paket_member = DB::table('paket_member')
                         ->where('id_member',Auth::guard('member')->user()->id_member)
                         ->where('tanggal_beli',$a->tanggal_order)
+                        ->where('id_cabang',$a->id_cabang)
                         ->get();
                     array_push($data,[
                         'id_order' => $a->id_order,

@@ -113,7 +113,6 @@ class BookingController extends Controller
                             'id_user' => $user,
                             'id_member' => $id_member,
                             'id_jadwal' => $id_jadwal,
-                            // 'id_trainer' => $id_trainer,
                             'id_jam' => $jams,
                             'id_cabang' => $cabang
                         ]);
@@ -130,6 +129,17 @@ class BookingController extends Controller
                                 ->orderBy('tanggal_beli', 'desc')
                                 ->first();
                             $updatepaket = DB::table('paket_member')->whereIdPaketMember($member->id_paket_member)->update(['sisa_paket' => $kurang]);
+                            // data jadwal jam
+                            foreach ($id_jam as $idj) {
+                                $data_jadwal_jam = DB::table('jadwal_jam')->where('id_jadwal_jam' , $idj)->first();
+                                if($data_jadwal_jam->kapasitas == 0)
+                                {
+                                    $tambah_kapasitas = 1;
+                                } else {
+                                    $tambah_kapasitas = $data_jadwal_jam->kapasitas + 1;
+                                }
+                                $updatekapasitas = DB::table('jadwal_jam')->where('id_jadwal_jam', $idj)->update(['kapasitas' => $tambah_kapasitas]);
+                            }
                         }
                         return redirect("/booking")->with('status', 'Berhasil Menambahkan Booking Member');
                     } else {
@@ -147,6 +157,7 @@ class BookingController extends Controller
             ->join('tbl_jam','jadwal_jam.id_jam','tbl_jam.id_jam')
             ->select('jadwal_jam.*','tbl_trainer.nama_trainer','tbl_jam.jam')
             ->where('jadwal_jam.id_jadwal', $id)
+            ->where('jadwal_jam.kapasitas' ,'<', '11')
             ->get();
             // $data['agenda'] =[];
             // foreach ($agenda as $key => $a) {
@@ -223,6 +234,12 @@ class BookingController extends Controller
             //     'sisa_paket' => $tambah
             // ]);
             $updatepaket = DB::table('paket_member')->whereIdPaketMember($member->id_paket_member)->update(['sisa_paket' => $tambah]);
+            // kurangi kapasitas
+            foreach ($value as $a) {
+                $jadwal_jam = DB::table('jadwal_jam')->where('id_jadwal_jam',$a)->first();
+                $kurang = $jadwal_jam->kapasitas - 1;
+                $updatekapasitas = DB::table('jadwal_jam')->where('id_jadwal_jam',$a)->update(['kapasitas' => $kurang]);
+            }
             return redirect()->back()->with('status', 'Berhasil Dihapus');
         } else {
             return redirect()->back()->with('error', 'Data Gagal Dihapus');
@@ -279,12 +296,23 @@ class BookingController extends Controller
                             ->first();
                         // update table paket_member
                         $member = DB::table('paket_member')
-                                ->where('id_cabang', $cabang)
+                                ->where('id_cabang', $request->id_cabang)
                                 ->where('id_member', $id_member)
                                 ->select('*')
                                 ->orderBy('tanggal_beli', 'desc')
                                 ->first();
                         $updatepaket = DB::table('paket_member')->whereIdPaketMember($member->id_paket_member)->update(['sisa_paket' => $kurang]);
+                        // data jadwal jam
+                        foreach ($id_jam as $idj) {
+                            $data_jadwal_jam = DB::table('jadwal_jam')->where('id_jadwal_jam' , $idj)->first();
+                            if($data_jadwal_jam->kapasitas == 0)
+                            {
+                                $tambah_kapasitas = 1;
+                            } else {
+                                $tambah_kapasitas = $data_jadwal_jam->kapasitas + 1;
+                            }
+                            $updatekapasitas = DB::table('jadwal_jam')->where('id_jadwal_jam', $idj)->update(['kapasitas' => $tambah_kapasitas]);
+                        }
                     }
                     return response()->json(['status' => 200, 'message' => 'Booking Berhasil Dilakukan' , 'data' => $datamember,'sisa_paket' => $kurang]);
                 } else {
